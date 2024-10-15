@@ -10,6 +10,7 @@ import openfl.geom.ColorTransform;
 import openfl.display.ShaderParameter;
 import openfl.Vector;
 
+@:nullSafety
 class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 {
 	static inline var VERTICES_PER_QUAD = #if (openfl >= "8.5.0") 4 #else 6 #end;
