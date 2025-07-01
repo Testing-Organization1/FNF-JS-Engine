@@ -88,7 +88,7 @@ class FPSCounter extends TextField
 			if (currentFPS <= ClientPrefs.framerate / 4)
 				textColor = 0xFFFF0000;
 		}
-		deltaTimeout = 0.0;
+		// deltaTimeout = 0.0;
 	}
 
 	public dynamic function updateText():Void   // so people can override it in hscript

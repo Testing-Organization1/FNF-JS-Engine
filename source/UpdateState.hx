@@ -161,8 +161,6 @@ class UpdateState extends MusicBeatState
 	{
 		#if windows
 		return 'windows';
-		#elseif mac
-		return 'macOS';
 		#elseif linux
 		return 'linux';
 		#elseif android

@@ -65,20 +65,38 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download Mac artifact
+    - name: Download Mac Intel artifact
       uses: actions/download-artifact@main
       with:
         path: build
-        name: macBuild
+        name: macBuild-intel
     - name: Compress build
       run: |
         sudo apt-get install p7zip-full
-        7z a -tzip build.zip -w ./build/.
-    - name: Upload macBuild to release
+        7z a -tzip buildIntel.zip -w ./build/.
+        rm -rf ./build
+    - name: Download Mac ARM artifact
+      uses: actions/download-artifact@main
+      with:
+        path: build
+        name: macBuild-arm
+    - name: Compress build
+      run: |
+        7z a -tzip buildARM.zip -w ./build/.
+        rm -rf ./build
+    - name: Upload macBuild-intel to release
       uses: svenstaro/upload-release-action@2.5.0
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ github.ref_name }}
-        file: build.zip
-        asset_name: FNF-JS-Engine-macOS.zip
+        file: buildIntel.zip
+        asset_name: FNF-JS-Engine-macOS-Intel.zip
+        overwrite: false
+    - name: Upload macBuild-arm to release
+      uses: svenstaro/upload-release-action@2.5.0
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref_name }}
+        file: buildARM.zip
+        asset_name: FNF-JS-Engine-macOS-ARM.zip
         overwrite: false

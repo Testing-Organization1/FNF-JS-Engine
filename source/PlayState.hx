@@ -6715,11 +6715,13 @@ class PlayState extends MusicBeatState
 
 	private function initRender():Void
 	{
-		if (!FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end))
+		#if windows
+		if (!FileSystem.exists('ffmpeg.exe'))
 		{
 			trace("\"FFmpeg\" not found! (Is it in the same folder as JSEngine?)");
 			return;
 		}
+		#end
 
 		if(!FileSystem.exists('assets/gameRenders/')) { //In case you delete the gameRenders folder
 			trace ('gameRenders folder not found! Creating the gameRenders folder...');
@@ -6742,8 +6744,13 @@ class PlayState extends MusicBeatState
             fileName += '-' + dateNow;
         }
 
-		process = new Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', lime.app.Application.current.window.width + 'x' + lime.app.Application.current.window.height, '-r', Std.string(targetFPS), '-i', '-', '-c:v', ClientPrefs.vidEncoder, '-b', Std.string(ClientPrefs.renderBitrate * 1000000), fileName + '.mp4']);
-		FlxG.autoPause = false;
+		try{
+			process = new Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', lime.app.Application.current.window.width + 'x' + lime.app.Application.current.window.height, '-r', Std.string(targetFPS), '-i', '-', '-c:v', ClientPrefs.vidEncoder, '-b', Std.string(ClientPrefs.renderBitrate * 1000000), fileName + '.mp4']);
+			FlxG.autoPause = false;
+		}catch(e:Dynamic){
+			trace("Error initializing FFmpeg process: " + e);
+			process = null;
+		}
 	}
 
 	var img = null;
