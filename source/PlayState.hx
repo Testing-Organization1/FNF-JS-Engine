@@ -4765,11 +4765,9 @@ class PlayState extends MusicBeatState
 		if(ret != FunkinLua.Function_Stop && !transitioning) {
 			if (!cpuControlled && !playerIsCheating && ClientPrefs.safeFrames <= 10)
 			{
-				#if !switch
 				var percent:Float = ratingPercent;
 				if(Math.isNaN(percent)) percent = 0;
 				Highscore.saveScore(SONG.song, Std.int(songScore), storyDifficulty, percent);
-				#end
 			}
 			playbackRate = 1;
 

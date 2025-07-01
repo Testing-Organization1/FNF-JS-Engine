@@ -224,7 +224,7 @@ class CoolUtil
 			if (chmodResult != 0)
 			{
 				trace("Error setting script executable permissions: " + chmodResult);
-				Application.current.window.alert("Could not set update script permissions. Please run the game as administrator or manually update.");
+				Application.current.window.alert("Could not set update script permissions. Please run the game as root or manually update.");
 				Sys.exit(1); // Exit with an error code
 			}
 		}

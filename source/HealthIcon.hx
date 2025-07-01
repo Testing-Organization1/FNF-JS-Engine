@@ -66,10 +66,12 @@ class HealthIcon extends FlxSprite
 				// throw "Don't delete the placeholder icon";
 				trace("Warning: could not find the placeholder icon, expect crashes!");
 			}
-			final iSize:Float = Math.round(file.width / file.height);
+			var iSize:Float = Math.round(file.width / file.height);
 			// TODO: clean up this fucking mess
-			if (iconMeta?.useLegacySystem)
+			if (iconMeta?.useLegacySystem || (file.width / file.height > 3))
 			{
+				if (file.width / file.height > 3)
+					iSize = Math.floor(file.width / 2);
 				loadGraphic(file, true, Math.floor(file.width / iSize), Math.floor(file.height));
 				initialWidth = width;
 				initialHeight = height;
