@@ -299,7 +299,7 @@ jobs:
       - name: Compile
         run: |
           rm -f assets/preload/gameRenders/renderlol.bat
-          haxelib run lime build mac -arm64 -D ${{ inputs.buildFlags || 'commit' }} -D HXCPP_ARM64
+          haxelib run lime build mac -arm64 -D ${{ inputs.buildFlags }} -D HXCPP_ARM64
       - name: Clear Previous Cache
         uses: actions/github-script@main
         with:
