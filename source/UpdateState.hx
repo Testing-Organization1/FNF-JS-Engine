@@ -2,15 +2,9 @@ package;
 
 import JSEZip;
 import Prompt;
-import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.addons.display.FlxBackdrop;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
 import flixel.ui.FlxBar;
 import flixel.util.FlxAxes;
-import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
 import haxe.Http;
 import haxe.zip.Compress;
 import haxe.zip.Entry;
@@ -25,11 +19,6 @@ import openfl.events.ProgressEvent;
 import openfl.net.URLLoader;
 import openfl.net.URLRequest;
 import openfl.utils.ByteArray;
-import sys.FileSystem;
-import sys.io.File;
-import sys.io.Process;
-
-using StringTools;
 
 class UpdateState extends MusicBeatState
 {

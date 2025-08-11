@@ -1,31 +1,10 @@
 package options;
 
-import flash.text.TextField;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import lime.utils.Assets;
-import flixel.FlxSubState;
-import flash.text.TextField;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.util.FlxSave;
-import haxe.Json;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxTimer;
-import flixel.input.keyboard.FlxKey;
-import flixel.graphics.FlxGraphic;
 import Controls;
-
+import flixel.addons.ui.FlxUIInputText; // These are both for the search bars
+import flixel.graphics.FlxGraphic;
+import flixel.input.keyboard.FlxKey;
 import flixel.ui.FlxButton;
-import flixel.addons.ui.FlxUIInputText; //These are both for the search bars
-
-using StringTools;
 
 class BaseOptionsMenu extends MusicBeatSubstate
 {
@@ -53,11 +32,11 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		if(title == null) title = 'Options';
 		if(rpcTitle == null) rpcTitle = 'Options Menu';
-		
+
 		#if desktop
 		DiscordClient.changePresence(rpcTitle, null);
 		#end
-		
+
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFea71fd;
 		bg.screenCenter();
@@ -167,7 +146,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				if (query != null && query.length > 0) {
 					var optionName = originalOptionsArray[i].name.toLowerCase();
 					var q = query.toLowerCase();
-					if (optionName.indexOf(q) != -1) 
+					if (optionName.indexOf(q) != -1)
 					{
 						optionsFound.push(originalOptionsArray[i]);
 						foundOptions++;
@@ -207,7 +186,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				checkboxGroup.remove(check, true);
 				check.destroy();
 			});
-			
+
 			//we clear the remaining ones
 			grpOptions.clear();
 			grpTexts.clear();
@@ -344,7 +323,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 							{
 								case 'int':
 									curOption.setValue(Math.round(holdValue));
-								
+
 								case 'float' | 'percent':
 									curOption.setValue(FlxMath.roundDecimal(holdValue, curOption.decimals));
 							}
@@ -363,7 +342,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 			if(controls.RESET)
 			{
-				if (!FlxG.keys.pressed.SHIFT) 
+				if (!FlxG.keys.pressed.SHIFT)
 				{
 					var leOption:Option = optionsArray[curSelected];
 					leOption.setValue(leOption.defaultValue);
@@ -423,7 +402,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		}
 		holdTime = 0;
 	}
-	
+
 	function changeSelection(change:Int = 0)
 	{
 		curSelected += change;

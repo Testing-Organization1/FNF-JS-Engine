@@ -1,31 +1,10 @@
 package options;
 
-import flash.text.TextField;
-import flixel.FlxCamera;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import lime.utils.Assets;
-import flixel.FlxSubState;
-import flash.text.TextField;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.util.FlxSave;
-import haxe.Json;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxTimer;
-import flixel.input.keyboard.FlxKey;
-import flixel.graphics.FlxGraphic;
 import Controls;
-import openfl.display.Stage;
+import flixel.graphics.FlxGraphic;
+import flixel.input.keyboard.FlxKey;
 import openfl.Lib;
-
-using StringTools;
+import openfl.display.Stage;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
@@ -64,7 +43,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			'bool',
 			false); //Don't turn this on by default
 		addOption(option);
-		
+
 		var option:Option = new Option('Automatic Note Spawn Time', //Name
 			"If checked, the Notes' spawn time will instead depend on the scroll speed. \nUseful if you don't want notes just spawning out of thin air. \nNOTE: Disable this if you use Lua Extra Keys!!", //Description
 			'dynamicSpawnTime', //Save data variable name
@@ -86,7 +65,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 		// The "Memory Leaks" meme is dead...
 
-		#if !html5 
+		#if !html5
 		#if desktop
 		//different res cant really be done on browser lol
 		var option:Option = new Option('Resolution: ',
@@ -99,7 +78,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = onChangeResolution;
 		#end
-		
+
 		//Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
 		var option:Option = new Option('Framerate',
 			"Pretty self explanatory, isn't it?",
@@ -151,11 +130,11 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
     		if (resolutionValue != null) {
         		var parts = resolutionValue.split('x');
-        
+
         		if (parts.length == 2) {
             			var width = Std.parseInt(parts[0]);
             			var height = Std.parseInt(parts[1]);
-            
+
             			if (width != null && height != null) {
 					CoolUtil.resetResScale(width, height);
                 			FlxG.resizeGame(width, height);

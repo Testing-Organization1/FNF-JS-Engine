@@ -9,7 +9,7 @@ haxelib git openfl https://github.com/th2l-devs/openfl --quiet
 haxelib git flixel https://github.com/JS-Engine-things/flixel-JS-Engine --quiet
 haxelib install flixel-addons 3.2.3 --quiet
 haxelib install flixel-tools 1.5.1 --quiet
-haxelib install flixel-ui 2.6.1 --quiet
+haxelib install flixel-ui 2.6.0 --quiet
 haxelib install hscript --quiet
 haxelib install hxcpp-debug-server --quiet
 haxelib git away3d https://github.com/moxie-coder/away3d --quiet

@@ -119,6 +119,13 @@ same goes for *Lua Scripts*, comment out or delete the line with `LUA_ALLOWED`, 
 @HomuHomu833
 - Ported JS Engine to mobile
 
+### The rest of the lovely contributors on GitHub! (Psych and JS Engine)
+<a href="https://github.com/JordanSantiagoYT/FNF-JS-Engine/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=JordanSantiagoYT/FNF-JS-Engine" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
+
 <details>
   <summary><h2>OG Psych Engine Credits and Stuff</h2></summary>
   

@@ -1,10 +1,6 @@
 package;
 
-import flixel.FlxSprite;
 import flixel.addons.display.FlxPieDial;
-import flixel.group.FlxSpriteGroup;
-import flixel.math.FlxMath;
-import flixel.util.FlxColor;
 #if hxvlc
 import hxvlc.flixel.FlxVideoSprite;
 #end

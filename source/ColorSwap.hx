@@ -1,6 +1,5 @@
 package;
 
-import flixel.FlxG;
 import flixel.system.FlxAssets.FlxShader;
 
 class ColorSwap {
@@ -129,7 +128,7 @@ class ColorSwapShader extends FlxShader {
 			swagColor[0] = swagColor[0] + uTime[0];
 			swagColor[1] = swagColor[1] + uTime[1];
 			swagColor[2] = swagColor[2] * (1.0 + uTime[2]);
-			
+
 			if(swagColor[1] < 0.0)
 			{
 				swagColor[1] = 0.0;
@@ -149,7 +148,7 @@ class ColorSwapShader extends FlxShader {
 				if (color.a <= 0.5) {
 					float w = size.x / openfl_TextureSize.x;
 					float h = size.y / openfl_TextureSize.y;
-					
+
 					if (flixel_texture2D(bitmap, vec2(openfl_TextureCoordv.x + w, openfl_TextureCoordv.y)).a != 0.
 					|| flixel_texture2D(bitmap, vec2(openfl_TextureCoordv.x - w, openfl_TextureCoordv.y)).a != 0.
 					|| flixel_texture2D(bitmap, vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y + h)).a != 0.
@@ -159,7 +158,7 @@ class ColorSwapShader extends FlxShader {
 			}
 			gl_FragColor = color;
 
-			/* 
+			/*
 			if (color.a > 0.5)
 				gl_FragColor = color;
 			else
@@ -194,7 +193,7 @@ class ColorSwapShader extends FlxShader {
 		attribute vec4 colorMultiplier;
 		attribute vec4 colorOffset;
 		uniform bool hasColorTransform;
-		
+
 		void main(void)
 		{
 			openfl_Alphav = openfl_Alpha;

@@ -1,15 +1,5 @@
 package;
 
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.group.FlxSpriteGroup;
-import flixel.math.FlxMath;
-import flixel.util.FlxTimer;
-import flixel.sound.FlxSound;
-import flash.media.Sound;
-
-using StringTools;
 
 class TypedAlphabet extends Alphabet
 {
@@ -96,7 +86,7 @@ class TypedAlphabet extends Alphabet
 		showCharacterUpTo(letters.length - 1);
 		if(sound != '') FlxG.sound.play(Paths.sound(sound), volume);
 		finishedText = true;
-		
+
 		if(onFinish != null) onFinish();
 		_timeToUpdate = 0;
 	}

@@ -4,26 +4,10 @@ import Character.CharacterFile;
 import Note.PreloadedChartNote;
 import Section.SwagSection;
 import Song.SwagSong;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
-import flixel.math.FlxMath;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import flixel.sound.FlxSound;
-import flixel.text.FlxText;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
 import flixel.util.FlxSort;
-import flixel.util.FlxTimer;
-import haxe.Json;
 import objects.SustainSplash;
 import openfl.events.KeyboardEvent;
-
-using StringTools;
 
 class EditorPlayState extends MusicBeatState
 {
@@ -410,6 +394,8 @@ class EditorPlayState extends MusicBeatState
 				{
 					updateNote(daNote);
 				});
+
+				destroyNotes();
 				group.sort(FlxSort.byY, ClientPrefs.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 			}
 			if (Conductor.songPosition >= FlxG.sound.music.length) endSong();
@@ -499,43 +485,36 @@ class EditorPlayState extends MusicBeatState
 
 				var canMiss:Bool = !ClientPrefs.ghostTapping;
 
-				// heavily based on my own code LOL if it aint broke dont fix it
-				var pressNotes:Array<Note> = [];
-				//var notesDatas:Array<Int> = [];
-				var notesStopped:Bool = false;
-
-				//trace('test!');
-				var sortedNotesList:Array<Note> = [];
-				for (group in [notes, sustainNotes]) group.forEachAlive(function(daNote:Note)
-				{
-					if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.isSustainNote)
-					{
-						if(daNote.noteData == key)
-						{
-							sortedNotesList.push(daNote);
-							//notesDatas.push(daNote.noteData);
-						}
-						canMiss = true;
-					}
+				// obtain notes that the player can hit
+				var plrInputNotes:Array<Note> = notes.members.filter(function(n:Note):Bool {
+					var canHit:Bool = n.canBeHit && n.mustPress && !n.tooLate && !n.wasGoodHit && !n.blockHit;
+					// trace('[keyPressed] Note? ${n != null}, noteData=${n.noteData}, strumTime=${n.strumTime}, canHit=$canHit, mustPress=${n.mustPress}, tooLate=${n.tooLate}, wasGoodHit=${n.wasGoodHit}, Conductor=${Conductor.songPosition}');
+					return n != null && canHit && !n.isSustainNote && n.noteData == key;
 				});
-				sortedNotesList.sort(sortHitNotes);
+				plrInputNotes.sort(sortHitNotes);
 
-				if (sortedNotesList.length > 0) {
-					for (epicNote in sortedNotesList)
-					{
-						for (doubleNote in pressNotes) {
-							if (Math.abs(doubleNote.strumTime - epicNote.strumTime) < 1) {
+				if (plrInputNotes.length != 0) {
+					var funnyNote:Note = plrInputNotes[0]; // front note
+
+					if (plrInputNotes.length > 1) {
+						var doubleNote:Note = plrInputNotes[1];
+
+						//if the note has the same notedata and doOppStuff indicator as funnynote, then do the check
+						if (doubleNote.noteData == funnyNote.noteData && doubleNote.doOppStuff == funnyNote.doOppStuff) {
+							// if the note has a 0ms distance (is on top of the current note), kill it
+							if (Math.abs(doubleNote.strumTime - funnyNote.strumTime) < 1.0)
 								invalidateNote(doubleNote);
-							} else
-								notesStopped = true;
+							else if (doubleNote.strumTime < funnyNote.strumTime)
+							{
+								// replace the note if its ahead of time (or at least ensure "doubleNote" is ahead)
+								funnyNote = doubleNote;
+							}
 						}
-
-						// eee jack detection before was not super good
-						if (!notesStopped) {
-							goodNoteHit(epicNote);
-							pressNotes.push(epicNote);
-						}
-
+						else goodNoteHit(doubleNote); //otherwise, hit doubleNote instead of killing it
+					}
+					goodNoteHit(funnyNote);
+					if (plrInputNotes.length > 2 && ClientPrefs.ezSpam) {
+						for (i in 1...plrInputNotes.length) goodNoteHit(plrInputNotes[i]);
 					}
 				}
 				else if (canMiss && ClientPrefs.ghostTapping) {
@@ -651,8 +630,6 @@ class EditorPlayState extends MusicBeatState
 		}
 	}
 
-
-	var note:Note = new Note();
 	function updateNote(daNote:Note):Void
 	{
 		if (daNote != null && daNote.exists)
@@ -799,7 +776,7 @@ class EditorPlayState extends MusicBeatState
 			note.active = note.visible = false;
 			if (!ClientPrefs.lowQuality || !cpuControlled)
 				note.kill();
-			notes.remove(note, true);
+			(note.isSustainNote ? sustainNotes : notes).remove(note, true);
 			note.destroy();
 		}
 		killNotes = [];

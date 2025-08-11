@@ -3,12 +3,7 @@ package;
 import haxe.io.Bytes;
 import lime.app.Application;
 import lime.graphics.Image;
-import flixel.FlxG;
 import lime.ui.Window;
-#if sys
-import sys.FileSystem;
-import sys.io.FileOutput;
-#end
 
 class Screenshot {
 	var x:Int;

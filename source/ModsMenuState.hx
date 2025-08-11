@@ -1,33 +1,17 @@
 package;
 
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.transition.FlxTransitionableState;
+import flixel.FlxBasic;
 import flixel.addons.ui.FlxButtonPlus;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import flixel.tweens.FlxTween;
-import lime.utils.Assets;
-import flixel.sound.FlxSound;
-import openfl.utils.Assets as OpenFlAssets;
-import sys.io.File;
-import sys.FileSystem;
-import haxe.Json;
+import flixel.ui.FlxButton;
 import haxe.format.JsonParser;
 import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
-import flixel.ui.FlxButton;
-import flixel.FlxBasic;
-import sys.io.File;
+
 /*import haxe.zip.Reader;
 import haxe.zip.Entry;
 import haxe.zip.Uncompress;
 import haxe.zip.Writer;*/
 
-using StringTools;
 
 class ModsMenuState extends MusicBeatState
 {
@@ -194,7 +178,6 @@ class ModsMenuState extends MusicBeatState
 		buttonsArray.push(buttonTop);
 		visibleWhenHasMods.push(buttonTop);
 
-
 		startX -= 190;
 		buttonDisableAll = new FlxButton(startX, 0, "DISABLE ALL", function() {
 			for (i in modsList)
@@ -249,7 +232,6 @@ class ModsMenuState extends MusicBeatState
 
 		// more buttons
 		var startX:Int = 1100;
-
 
 
 

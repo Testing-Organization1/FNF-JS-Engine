@@ -1,17 +1,5 @@
 package;
 
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.group.FlxSpriteGroup;
-import flixel.math.FlxMath;
-import flixel.math.FlxPoint;
-import flixel.util.FlxTimer;
-import flixel.sound.FlxSound;
-import flash.media.Sound;
-
-using StringTools;
-
 enum Alignment
 {
 	LEFT;
@@ -83,7 +71,7 @@ class Alphabet extends FlxSpriteGroup
 				default:
 					newOffset = 0;
 			}
-	
+
 			letter.offset.x -= letter.alignOffset;
 			letter.alignOffset = newOffset * scale.x;
 			letter.offset.x += letter.alignOffset;
@@ -206,7 +194,7 @@ class Alphabet extends FlxSpriteGroup
 		rows = 0;
 		for (character in newText.split(''))
 		{
-			
+
 			if(character != '\n')
 			{
 				var spaceChar:Bool = (character == " " || (bold && character == "_"));
@@ -302,7 +290,7 @@ class AlphaCharacter extends FlxSprite
 		'ä'  => null, 'ö'  => null, 'å'  => null, 'ø'  => null, 'æ'  => null,
 		'ñ'  => null, 'ç'  => {offsetsBold: [0, -11]}, 'š'  => null, 'ž'  => null, 'ý'  => null, 'ÿ'  => null,
 		'ß'  => null,
-		
+
 		//numbers
 		'0'  => null, '1'  => null, '2'  => null, '3'  => null, '4'  => null,
 		'5'  => null, '6'  => null, '7'  => null, '8'  => null, '9'  => null,
@@ -360,7 +348,7 @@ class AlphaCharacter extends FlxSprite
 		image = 'alphabet';
 		antialiasing = ClientPrefs.globalAntialiasing;
 	}
-	
+
 	public var curLetter:Letter = null;
 	public function setupAlphaCharacter(x:Float, y:Float, ?character:String = null, ?bold:Null<Bool> = null)
 	{
@@ -374,7 +362,7 @@ class AlphaCharacter extends FlxSprite
 			this.scale.x = parent.scaleX;
 			this.scale.y = parent.scaleY;
 		}
-		
+
 		if(character != null)
 		{
 			this.character = character;
@@ -443,12 +431,12 @@ class AlphaCharacter extends FlxSprite
 		this.scale.x = parent.scaleX;
 		this.scale.y = parent.scaleY;
 		alignOffset = 0;
-		
+
 		if (lastAnim != null)
 		{
 			animation.addByPrefix(lastAnim, lastAnim, 24);
 			animation.play(lastAnim, true);
-			
+
 			updateHitbox();
 		}
 		return name;

@@ -1,12 +1,10 @@
 package;
 
 import Controls;
-import flixel.FlxCamera;
-import flixel.FlxG;
 import flixel.util.FlxSignal;
 
-// import ui.DeviceManager;
 // import props.Player;
+// import ui.DeviceManager;
 class PlayerSettings
 {
 	static public var numPlayers(default, null) = 0;
@@ -44,7 +42,7 @@ class PlayerSettings
 		controls.setKeyboardScheme(scheme);
 	}
 
-	/* 
+	/*
 		static public function addAvatar(avatar:Player):PlayerSettings
 		{
 			var settings:PlayerSettings;

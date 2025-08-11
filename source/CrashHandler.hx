@@ -2,23 +2,13 @@ package;
 
 // an fully working crash handler on ALL platforms
 
-import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.text.FlxText;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
 import haxe.CallStack;
 import haxe.io.Path;
 import openfl.Lib;
 import openfl.errors.Error;
 import openfl.events.ErrorEvent;
 import openfl.events.UncaughtErrorEvent;
-import sys.FileSystem;
-import sys.io.File;
-
-using StringTools;
 
 /**
  * Crash Handler.

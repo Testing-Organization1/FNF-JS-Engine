@@ -1,7 +1,6 @@
 package debug;
 
 import debug.Memory;
-import flixel.util.FlxStringUtil;
 import lime.system.System;
 import mem.GetTotalMemory;
 import openfl.text.TextField;

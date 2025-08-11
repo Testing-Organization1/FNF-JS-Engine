@@ -1,14 +1,8 @@
 package;
 
-import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-#if MODS_ALLOWED
-import sys.io.File;
-import sys.FileSystem;
-#end
-import openfl.utils.Assets;
-import haxe.Json;
 import haxe.format.JsonParser;
+#if MODS_ALLOWED
+#end
 
 typedef MenuCharacterFile = {
 	var image:String;
@@ -71,7 +65,7 @@ class MenuCharacter extends FlxSprite
 				}
 				rawJson = Assets.getText(path);
 				#end
-				
+
 				var charFile:MenuCharacterFile = cast Json.parse(rawJson);
 				frames = Paths.getSparrowAtlas('menucharacters/' + charFile.image);
 				animation.addByPrefix('idle', charFile.idle_anim, 24);

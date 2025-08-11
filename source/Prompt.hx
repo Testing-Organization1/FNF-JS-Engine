@@ -1,18 +1,14 @@
 package;
 import flixel.*;
-import flixel.FlxSubState;
 import flixel.addons.ui.FlxUIButton;
 import flixel.addons.ui.FlxUIPopup;
-import flixel.text.FlxText;
 import flixel.ui.FlxButton;
-import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
 import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
 
 /**
  * ...
- * @author 
+ * @author
  */
 class Prompt extends MusicBeatSubstate
 {
@@ -28,36 +24,36 @@ class Prompt extends MusicBeatSubstate
 	var buttonAccept:FlxButton;
 	var buttonNo:FlxButton;
 	var cornerSize:Int = 10;
-	public function new(promptText:String='', defaultSelected:Int = 0, okCallback:Void->Void, cancelCallback:Void->Void,acceptOnDefault:Bool=false,option1:String=null,option2:String=null) 
+	public function new(promptText:String='', defaultSelected:Int = 0, okCallback:Void->Void, cancelCallback:Void->Void,acceptOnDefault:Bool=false,option1:String=null,option2:String=null)
 	{
 		selected = defaultSelected;
 		okc = okCallback;
 		cancelc = cancelCallback;
 		theText = promptText;
 		goAnyway = acceptOnDefault;
-		
+
 		var op1 = 'OK';
 		var op2 = 'CANCEL';
-		
+
 		if (option1 != null) op1 = option1;
 		if (option2 != null) op2 = option2;
 		buttonAccept = new FlxButton(473.3, 450, op1, function(){if(okc != null)okc();
 		close();} );
 		buttonNo = new FlxButton(633.3,450,op2,function(){if(cancelc != null)cancelc();
 		close();});
-		super();	
+		super();
 	}
-	
-	override public function create():Void 
+
+	override public function create():Void
 	{
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length-1]];
 		super.create();
 		if (goAnyway){
-			
-			
+
+
 				if(okc != null)okc();
 			close();
-			
+
 		}else{
 		panel = new FlxSprite(0, 0);
 		panelbg = new FlxSprite(0, 0);
@@ -75,7 +71,7 @@ class Prompt extends MusicBeatSubstate
 		panel.screenCenter();
 		panelbg.scrollFactor.set();
 		panelbg.screenCenter();
-		
+
 		add(panelbg);
 		add(panel);
 		add(buttonAccept);
@@ -95,16 +91,15 @@ class Prompt extends MusicBeatSubstate
 		}
 	}
 	/*
-	override public function update(elapsed:Float):Void 
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
-		
-		
-		
+
+
 		if (!goAnyway){
-			
-			
-			
+
+
+
 		if (controls.UI_LEFT_P || controls.UI_RIGHT_P){
 			if (selected == 0){
 				selected = 1;
@@ -128,16 +123,16 @@ class Prompt extends MusicBeatSubstate
 			}
 			close();
 		}
-		
+
 		}
 	}
 	*/
-	
+
 	function makeSelectorGraphic(panel:FlxSprite,w,h,color:FlxColor)
 	{
 		panel.makeGraphic(w, h, color);
 		panel.pixels.fillRect(new Rectangle(0, 190, panel.width, 5), 0x0);
-		
+
 		// Why did i do this? Because i'm a lmao stupid, of course
 		// also i wanted to understand better how fillRect works so i did this shit lol???
 		panel.pixels.fillRect(new Rectangle(0, 0, cornerSize, cornerSize), 0x0);														 //top left
@@ -165,5 +160,5 @@ class Prompt extends MusicBeatSubstate
 		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 6), Std.int(Math.abs(antiY - 2)),  5, 1), color);
 		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 8), Std.int(Math.abs(antiY - 1)),  3, 1), color);
 	}
-	
+
 }

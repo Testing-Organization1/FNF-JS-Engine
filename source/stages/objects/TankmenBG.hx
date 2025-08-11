@@ -1,7 +1,5 @@
 package stages.objects;
 
-import flixel.graphics.frames.FlxAtlasFrames;
-
 class TankmenBG extends FlxSprite
 {
 	public static var animationNotes:Array<Dynamic> = [];

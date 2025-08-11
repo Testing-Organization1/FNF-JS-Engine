@@ -1,23 +1,18 @@
 // This is modified version of https://github.com/zacksgamerz/flixel-screenshot-plugin/blob/master/src/screenshotplugin/ScreenShotPlugin.hx
 package backend;
 
-import flixel.util.FlxTimer;
+import flixel.input.keyboard.FlxKey;
+import lime.utils.Log as LimeLogger;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
+import openfl.display.Sprite;
+import openfl.utils.ByteArray;
+
 #if sys
-import sys.FileSystem;
 #end
 #if android
 import android.widget.Toast;
 #end
-import openfl.utils.ByteArray;
-import openfl.display.Sprite;
-import flixel.tweens.FlxTween;
-import flixel.FlxG;
-import openfl.display.Bitmap;
-import openfl.display.BitmapData;
-import flixel.input.keyboard.FlxKey;
-import lime.utils.Log as LimeLogger;
-
-using StringTools;
 
 /**
  * @author SayofTheLor
@@ -136,7 +131,7 @@ class SSPlugin extends flixel.FlxBasic
 
 		if (flashSprite.alpha > 0 || screenshotSprite.alpha > 0) aliveTime += elapsed;
 		else aliveTime = 0;
-		if (aliveTime >= buggedKillTime) 
+		if (aliveTime >= buggedKillTime)
 		{
 			FlxTween.cancelTweensOf(flashSprite);
 			FlxTween.cancelTweensOf(screenshotSprite);

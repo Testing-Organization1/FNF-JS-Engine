@@ -1,19 +1,15 @@
 package options;
 
-import flixel.addons.display.FlxBackdrop;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.display.shapes.FlxShapeCircle;
-import flixel.input.keyboard.FlxKey;
-import flixel.input.gamepad.FlxGamepadInputID;
-import lime.system.Clipboard;
-import flixel.util.FlxGradient;
-import StrumNote;
 import Note;
-
-import shaders.RGBPalette;
+import StrumNote;
+import flixel.addons.display.FlxBackdrop;
+import flixel.addons.display.shapes.FlxShapeCircle;
+import flixel.input.gamepad.FlxGamepadInputID;
+import flixel.input.keyboard.FlxKey;
+import flixel.util.FlxGradient;
+import lime.system.Clipboard;
 import shaders.RGBPalette.RGBShaderReference;
-
-using StringTools;
+import shaders.RGBPalette;
 
 class NotesSubState extends MusicBeatSubstate
 {
@@ -59,11 +55,11 @@ class NotesSubState extends MusicBeatSubstate
 		super();
 
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length-1]];
-		
+
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Note Colors Menu", null);
 		#end
-		
+
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFEA71FD;
 		bg.screenCenter();
@@ -102,11 +98,11 @@ class NotesSubState extends MusicBeatSubstate
 		coverBG = new FlxSprite(720).makeGraphic(FlxG.width - 720, FlxG.height, FlxColor.BLACK);
 		coverBG.alpha = 0.25;
 		add(coverBG);
-		
+
 		var bg:FlxSprite = new FlxSprite(750, 160).makeGraphic(FlxG.width - 780, 540, FlxColor.BLACK);
 		bg.alpha = 0.25;
 		add(bg);
-		
+
 		var text:Alphabet = new Alphabet(50, 86, 'CTRL', false);
 		text.alignment = CENTERED;
 		text.setScale(0.4);
@@ -133,7 +129,7 @@ class NotesSubState extends MusicBeatSubstate
 		colorPalette.updateHitbox();
 		colorPalette.antialiasing = false;
 		add(colorPalette);
-		
+
 		colorWheel = new FlxSprite(860, 200).loadGraphic(Paths.image('noteColorMenu/colorWheel'));
 		colorWheel.setGraphicSize(360, 360);
 		colorWheel.updateHitbox();
@@ -228,14 +224,14 @@ class NotesSubState extends MusicBeatSubstate
 				setShaderColor(colorHex);
 				_storedColor = getShaderColor();
 				updateColors();
-				
+
 				// move you to next letter
 				hexTypeNum++;
 				changed = true;
 			}
 			else if(FlxG.keys.justPressed.ENTER)
 				hexTypeNum = -1;
-			
+
 			var end:Bool = false;
 			if(changed)
 			{
@@ -268,7 +264,7 @@ class NotesSubState extends MusicBeatSubstate
 				modeBG.visible = onModeColumn;
 				notesBG.visible = !onModeColumn;
 			}
-	
+
 			if(add != 0)
 			{
 				if(onModeColumn) changeSelectionMode(add);
@@ -360,7 +356,7 @@ class NotesSubState extends MusicBeatSubstate
 			}
 			else if (pointerOverlaps(colorPalette)) {
 				setShaderColor(colorPalette.pixels.getPixel32(
-					Std.int((pointerX() - colorPalette.x) / colorPalette.scale.x), 
+					Std.int((pointerX() - colorPalette.x) / colorPalette.scale.x),
 					Std.int((pointerY() - colorPalette.y) / colorPalette.scale.y)));
 				FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 				updateColors();
@@ -420,7 +416,7 @@ class NotesSubState extends MusicBeatSubstate
 					else setShaderColor(FlxColor.fromRGBFloat(_storedColor.brightness, _storedColor.brightness, _storedColor.brightness));
 					updateColors();
 				}
-			} 
+			}
 		}
 		else if(controls.RESET && hexTypeNum < 0)
 		{
@@ -432,7 +428,7 @@ class NotesSubState extends MusicBeatSubstate
 				{
 					var strumRGB:RGBShaderReference = myNotes.members[curSelectedNote].rgbShader;
 					var color = colors[i];
-					
+
 					if (ClientPrefs.noteColorStyle == 'Quant-Based') color = ClientPrefs.defaultQuantRGB[curSelectedNote][i];
 					switch(i)
 					{
@@ -528,7 +524,7 @@ class NotesSubState extends MusicBeatSubstate
 			curSelectedNote = dataArray.length-1;
 		if (curSelectedNote >= dataArray.length)
 			curSelectedNote = 0;
-		
+
 		modeBG.visible = false;
 		notesBG.visible = true;
 		bigNote.rgbShader.parent = Note.globalRgbShaders[curSelectedNote];
@@ -643,14 +639,14 @@ class NotesSubState extends MusicBeatSubstate
 				txt.scaleX = txt.scaleY = 2 / txt.letters.length;
 				noteTxts.add(txt);
 			}
-			
+
 			newNote.useRGBShader = true;
 			newNote.setGraphicSize(102);
 			newNote.updateHitbox();
 			newNote.ID = i;
 			myNotes.add(newNote);
 		}
-		
+
 		bigNote = new Note(0, 0);
 		bigNote.setPosition(250, 325);
 		bigNote.pixelNote = onPixel;

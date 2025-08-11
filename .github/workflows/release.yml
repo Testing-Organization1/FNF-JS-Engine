@@ -1,15 +1,47 @@
-name: Release
+name: Manual Release
 
 on:
-  release:
-    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      # tag:
+        # description: 'Tag for this release (e.g., v1.0.0)'
+        # required: true
+      prerelease:
+        description: 'Mark as a pre-release? (true/false)'
+        default: 'false'
+        required: false
 
 permissions:
   contents: write
+  
+env:
+  TAG_NAME: nightly-${{ github.run_number }}
 
 jobs:
+  ensure-tag:
+    name: Create Tag (if needed)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Set tag name
+        id: tagger
+        run: echo "tag_name=nightly-${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag ${{ env.TAG_NAME }}
+          git push origin ${{ env.TAG_NAME }}
+
   build:
-    name: Build
+    name: Build Artifacts
+    needs: ensure-tag
     uses: ./.github/workflows/main.yml
     with:
       buildFlags: officialBuild
@@ -19,84 +51,97 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download Linux artifact
-      uses: actions/download-artifact@main
-      with:
-        path: build
-        name: linuxBuild
-    - name: Compress build
-      run: |
-        sudo apt-get install p7zip-full
-        7z a -tzip build.zip -w ./build/.
-    - name: Upload linuxBuild to release
-      uses: svenstaro/upload-release-action@2.5.0
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.ref_name }}
-        file: build.zip
-        asset_name: FNF-JS-Engine-linux.zip
-        overwrite: false
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linuxBuild
+          path: build
+
+      - name: Compress build
+        run: |
+          sudo apt-get install -y p7zip-full
+          7z a -tzip linuxBuild.zip -w ./build/.
+
+      - name: Upload to GitHub Release
+        uses: svenstaro/upload-release-action@2.5.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.TAG_NAME }}
+          file: linuxBuild.zip
+          asset_name: FNF-JS-Engine-linux.zip
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          overwrite: true
 
   release-windows:
     name: Release windowsBuild
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download Windows artifact
-      uses: actions/download-artifact@main
-      with:
-        path: build
-        name: windowsBuild
-    - name: Compress build
-      run: |
-        sudo apt-get install p7zip-full
-        7z a -tzip build.zip -w ./build/.
-    - name: Upload windowsBuild to release
-      uses: svenstaro/upload-release-action@2.5.0
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.ref_name }}
-        file: build.zip
-        asset_name: FNF-JS-Engine-windows.zip
-        overwrite: false
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windowsBuild
+          path: build
+
+      - name: Compress build
+        run: |
+          sudo apt-get install -y p7zip-full
+          7z a -tzip windowsBuild.zip -w ./build/.
+
+      - name: Upload to GitHub Release
+        uses: svenstaro/upload-release-action@2.5.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.TAG_NAME }}
+          file: windowsBuild.zip
+          asset_name: FNF-JS-Engine-windows.zip
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          overwrite: true
 
   release-mac:
     name: Release macBuild
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download Mac Intel artifact
-      uses: actions/download-artifact@main
-      with:
-        path: build
-        name: macBuild-intel
-    - name: Compress build
-      run: |
-        sudo apt-get install p7zip-full
-        7z a -tzip buildIntel.zip -w ./build/.
-        rm -rf ./build
-    - name: Download Mac ARM artifact
-      uses: actions/download-artifact@main
-      with:
-        path: build
-        name: macBuild-arm
-    - name: Compress build
-      run: |
-        7z a -tzip buildARM.zip -w ./build/.
-        rm -rf ./build
-    - name: Upload macBuild-intel to release
-      uses: svenstaro/upload-release-action@2.5.0
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.ref_name }}
-        file: buildIntel.zip
-        asset_name: FNF-JS-Engine-macOS-Intel.zip
-        overwrite: false
-    - name: Upload macBuild-arm to release
-      uses: svenstaro/upload-release-action@2.5.0
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.ref_name }}
-        file: buildARM.zip
-        asset_name: FNF-JS-Engine-macOS-ARM.zip
-        overwrite: false
+      - name: Download Mac Intel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macBuild-intel
+          path: build
+
+      - name: Compress Intel build
+        run: |
+          sudo apt-get install -y p7zip-full
+          7z a -tzip macBuild-intel.zip -w ./build/
+          rm -rf ./build
+
+      - name: Download Mac ARM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macBuild-arm
+          path: build
+
+      - name: Compress ARM build
+        run: |
+          7z a -tzip macBuild-arm.zip -w ./build/
+          rm -rf ./build
+
+      - name: Upload macBuild-intel
+        uses: svenstaro/upload-release-action@2.5.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.TAG_NAME }}
+          file: macBuild-intel.zip
+          asset_name: FNF-JS-Engine-macOS-Intel.zip
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          overwrite: true
+
+      - name: Upload macBuild-arm
+        uses: svenstaro/upload-release-action@2.5.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.TAG_NAME }}
+          file: macBuild-arm.zip
+          asset_name: FNF-JS-Engine-macOS-ARM.zip
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          overwrite: true

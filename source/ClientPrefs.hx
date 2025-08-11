@@ -1,10 +1,8 @@
 package;
 
-import flixel.FlxG;
-import flixel.util.FlxSave;
-import flixel.input.keyboard.FlxKey;
-import flixel.graphics.FlxGraphic;
 import Controls;
+import flixel.graphics.FlxGraphic;
+import flixel.input.keyboard.FlxKey;
 
 class ClientPrefs { //default settings if it can't find a save file containing your current settings
 	//Gameplay Settings
@@ -77,8 +75,6 @@ class ClientPrefs { //default settings if it can't find a save file containing y
 	public static var showNotes:Bool = true;
 	public static var scoreZoom:Bool = true;
 	public static var healthBarAlpha:Float = 1;
-	public static var laneUnderlay:Bool = false;
-	public static var laneUnderlayAlpha:Float = 1;
 	public static var showFPS:Bool = true;
 	public static var randomBotplayText:Bool = true;
 	public static var botTxtFade:Bool = true;
@@ -116,6 +112,7 @@ class ClientPrefs { //default settings if it can't find a save file containing y
 	public static var noHitFuncs:Bool = false;
 	public static var noSkipFuncs:Bool = false;
 	public static var lessBotLag:Bool = false;
+	public static var maxNotes:Int = 0;
 
 	//Secret Debug
 	public static var noGunsRNG:Bool = false;
@@ -191,7 +188,7 @@ class ClientPrefs { //default settings if it can't find a save file containing y
 	//Gameplay Modifiers
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
-		'scrolltype' => 'multiplicative', 
+		'scrolltype' => 'multiplicative',
 		// anyone reading this, amod is multiplicative speed mod, cmod is constant speed mod, and xmod is bpm based speed mod.
 		// an amod example would be chartSpeed * multiplier
 		// cmod would just be constantSpeed = chartSpeed
@@ -242,27 +239,27 @@ class ClientPrefs { //default settings if it can't find a save file containing y
 		'note_up'		=> [W, UP],
 		'note_right'	=> [D, RIGHT],
 		'bot_energy'	=> [CONTROL, NONE],
-		
+
 		'ui_left'		=> [A, LEFT],
 		'ui_down'		=> [S, DOWN],
 		'ui_up'			=> [W, UP],
 		'ui_right'		=> [D, RIGHT],
-		
+
 		'accept'		=> [SPACE, ENTER],
 		'back'			=> [BACKSPACE, ESCAPE],
 		'pause'			=> [ENTER, ESCAPE],
 		'reset'			=> [R, NONE],
-		
+
 		'volume_mute'	=> [ZERO, NONE],
 		'volume_up'		=> [NUMPADPLUS, PLUS],
 		'volume_down'	=> [NUMPADMINUS, MINUS],
-		
+
 		'debug_1'		=> [SEVEN, NONE],
 		'debug_2'		=> [EIGHT, NONE],
 		'qt_taunt'		=> [SPACE, NONE]
 	];
 	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
-	
+
 	// i suck at naming things sorry
 	private static var importantMap:Map<String, Array<String>> = [
 		"saveBlackList" => ["keyBinds", "defaultKeys", "defaultArrowRGB", "defaultPixelRGB", "defaultQuantRGB"],
@@ -308,7 +305,7 @@ class ClientPrefs { //default settings if it can't find a save file containing y
 
 	public static function loadPrefs() { //loads settings if it finds a save file containing the settings
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
-		
+
 		for (field in Type.getClassFields(ClientPrefs))
 		{
 			if (Type.typeof(Reflect.field(ClientPrefs, field)) != TFunction)

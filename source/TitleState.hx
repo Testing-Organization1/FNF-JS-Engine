@@ -1,41 +1,22 @@
 package;
 
-import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.input.keyboard.FlxKey;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.TransitionData;
-import haxe.Json;
-import openfl.display.Bitmap;
-import openfl.display.BitmapData;
-#if MODS_ALLOWED
-import sys.FileSystem;
-import sys.io.File;
-#end
-import options.GraphicsSettingsSubState;
-//import flixel.graphics.FlxGraphic;
-import flixel.graphics.frames.FlxAtlasFrames;
+// import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame;
 import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
-import flixel.math.FlxMath;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import flixel.sound.FlxSound;
+import flixel.input.keyboard.FlxKey;
 import flixel.system.ui.FlxSoundTray;
-import flixel.text.FlxText;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
 import openfl.Assets;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
+import options.GraphicsSettingsSubState;
 
 #if VIDEOS_ALLOWED
 import VideoSprite;
 #end
 
-using StringTools;
 typedef TitleData =
 {
 
@@ -57,30 +38,19 @@ class TitleState extends MusicBeatState
 
 	public static var initialized:Bool = false;
 
-	public static var sarcasmEgg:String;
 	public var inCutscene:Bool = false;
 	var canPause:Bool = true;
-	var date:Date = Date.now();
-
-	final sarcasmKeys:Array<String> = [
-		'ANNOUNCER'
-	];
-	final allowedKeys:String = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	final allowedShit = ~/^[ABCDEFGHIJKLMNOPQRSTUVWXYZ]+$/;
-	var sarcasmKeysBuffer:String = '';
 
 	var blackScreen:FlxSprite;
 	var credGroup:FlxGroup;
 	var credTextShit:Alphabet;
 	var textGroup:FlxGroup;
 	var ngSpr:FlxSprite;
-	
+
 	var titleTextColors:Array<FlxColor> = [0xFF33FFFF, 0xFF3333CC];
 	var titleTextAlphas:Array<Float> = [1, .64];
 
 	var curWacky:Array<String> = [];
-
-	var wackyImage:FlxSprite;
 
 	var mustUpdate:Bool = false;
 
@@ -94,8 +64,6 @@ class TitleState extends MusicBeatState
 		Paths.clearUnusedMemory();
 
 		MusicBeatState.windowNameSuffix = " - Title Screen";
-		// ???
-		MusicBeatState.windowNameSuffix = "";
 
 		MusicBeatState.windowNamePrefix = Assets.getText(Paths.txt("windowTitleBase", "preload"));
 
@@ -114,17 +82,17 @@ class TitleState extends MusicBeatState
 
 			http.onData = function (data:String)
 			{
-    				var versionEndIndex:Int = data.indexOf(';');
-    				returnedData[0] = data.substring(0, versionEndIndex);
+				var versionEndIndex:Int = data.indexOf(';');
+				returnedData[0] = data.substring(0, versionEndIndex);
 
-    				// Extract the changelog after the version number
-    				returnedData[1] = data.substring(versionEndIndex + 1, data.length);
+				// Extract the changelog after the version number
+				returnedData[1] = data.substring(versionEndIndex + 1, data.length);
 				updateVersion = returnedData[0];
 				final curVersion:String = MainMenuState.psychEngineJSVersion.trim();
 				final cleanVersion:String = curVersion.split(" (")[0]; // Removes everything after " ("
 				trace(cleanVersion);
 				trace('version online: ' + updateVersion + ', your version: ' + cleanVersion);
-				if(updateVersion != cleanVersion) {
+				if(updateVersion != cleanVersion && CoolUtil.isVersionNewer(updateVersion, cleanVersion)) {
 					trace('versions arent matching!');
 					OutdatedState.currChanges = returnedData[1];
 					mustUpdate = true;
@@ -133,6 +101,8 @@ class TitleState extends MusicBeatState
 				if(updateVersion == curVersion) {
 					trace('the versions match!');
 				}
+				else
+					trace('$updateVersion is less than $cleanVersion. Skipping update as it\'s likely an dev version');
 			}
 
 			http.onError = function (error) {
@@ -193,90 +163,16 @@ class TitleState extends MusicBeatState
 	var titleText:FlxSprite;
 	var swagShader:ColorSwap = null;
 
-	/***************/
-    /*    VIDEO    */
-	/***************/
-	public var vidSprite:VideoSprite = null;
-	private function startVideo(name:String, ?library:String = null, ?callback:Void->Void = null, canSkip:Bool = true, loop:Bool = false, playOnLoad:Bool = true)
-	{
-		#if VIDEOS_ALLOWED
-		var foundFile:Bool = false;
-		var fileName:String = Paths.video(name, library);
-
-		var insertWhateveryouWantHere:Dynamic = null;
-
-		#if sys
-		if (FileSystem.exists(fileName))
-		#else
-		if (OpenFlAssets.exists(fileName))
-		#end
-		foundFile = true;
-
-		if (foundFile)
-		{
-			vidSprite = new VideoSprite(fileName, false, canSkip, loop);
-
-			// Finish callback
-			function onVideoEnd()
-			{
-				Sys.exit(0);
-			}
-			vidSprite.finishCallback = (callback != null) ? callback.bind() : onVideoEnd;
-			vidSprite.onSkip = (callback != null) ? callback.bind() : onVideoEnd;
-			add(vidSprite); // not do insert because you were putting it in the back lol
-
-			if (playOnLoad)
-				vidSprite.videoSprite.play();
-			return vidSprite;
-		}
-		else {
-			FlxG.log.error("Video not found: " + fileName);
-			new FlxTimer().start(0.1, function(tmr:FlxTimer) {
-				insertWhateveryouWantHere?.bind();
-			});
-		}
-		#else
-		FlxG.log.warn('Platform not supported!');
-		new FlxTimer().start(0.1, function(tmr:FlxTimer) {
-			insertWhateveryouWantHere?.bind(); // idk in case your source modding or whatever the fuck
-		});
-		#end
-		return null;
-	}
 	function startIntro()
 	{
 		if (!initialized)
 		{
-			if (!ClientPrefs.disableAprilFools) 
-			{
-			#if APRIL_FOOLS
-				if (date.getMonth() == 3 && date.getDate() == 1)
-				{
-					FlxG.sound.playMusic(Paths.music('aprilFools'), 0);
-				}
-				else if(FlxG.sound.music == null)
-				{
-					FlxG.sound.playMusic(Paths.music('freakyMenu-' + ClientPrefs.daMenuMusic), 0);
-				}
-				#else
-				if(FlxG.sound.music == null)
-				{
-					FlxG.sound.playMusic(Paths.music('freakyMenu-' + ClientPrefs.daMenuMusic), 0);
-				}
-			#end
-			} 
-			else 
-			{
-				if(FlxG.sound.music == null)
-				{
-					FlxG.sound.playMusic(Paths.music('freakyMenu-' + ClientPrefs.daMenuMusic), 0);
-				}	
-			}
+            Paths.playMenuMusic(true, 0);
 		}
 
 		switch(ClientPrefs.daMenuMusic) // change this if you're making a source mod, like add your own or something
 		{
-			case 'Mashup' | 'VS Impostor' | 'VS Nonsense V2': 
+			case 'Mashup' | 'VS Impostor' | 'VS Nonsense V2':
 				Conductor.changeBPM(102);
 			case 'Dave & Bambi':
 				Conductor.changeBPM(148);
@@ -345,20 +241,20 @@ class TitleState extends MusicBeatState
 			titleText.animation.findByPrefix(animFrames, "ENTER IDLE");
 			titleText.animation.findByPrefix(animFrames, "ENTER FREEZE");
 		}
-		
+
 		if (animFrames.length > 0) {
 			newTitle = true;
-			
+
 			titleText.animation.addByPrefix('idle', "ENTER IDLE", 24);
 			titleText.animation.addByPrefix('press', ClientPrefs.flashing ? "ENTER PRESSED" : "ENTER FREEZE", 24);
 		}
 		else {
 			newTitle = false;
-			
+
 			titleText.animation.addByPrefix('idle', "Press Enter to Begin", 24);
 			titleText.animation.addByPrefix('press', "ENTER PRESSED", 24);
 		}
-		
+
 		titleText.antialiasing = ClientPrefs.globalAntialiasing;
 		titleText.animation.play('idle');
 		titleText.updateHitbox();
@@ -408,7 +304,7 @@ class TitleState extends MusicBeatState
 	}
 
 	var transitioning:Bool = false;
-	
+
 	var newTitle:Bool = false;
 	var titleTimer:Float = 0;
 
@@ -416,7 +312,6 @@ class TitleState extends MusicBeatState
 	{
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
-		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT;
 
@@ -426,43 +321,11 @@ class TitleState extends MusicBeatState
 		{
 			if (gamepad.justPressed.START)
 				pressedEnter = true;
-
-			#if switch
-			if (gamepad.justPressed.B)
-				pressedEnter = true;
-			#end
 		}
-		
+
 		if (newTitle) {
 			titleTimer += CoolUtil.boundTo(elapsed, 0, 1);
 			if (titleTimer > 2) titleTimer -= 2;
-		}
-
-		// for testing purposes
-		/*
-		if (FlxG.keys.checkStatus(FlxKey.SEVEN, JUST_PRESSED))
-			throw 'Crash test';
-		*/
-
-
-		
-		sarcasmKeysBuffer += KeyboardFunctions.keypressToString();
-		if (sarcasmKeysBuffer.length >= 32)
-			sarcasmKeysBuffer = sarcasmKeysBuffer.substring(1);
-
-		for (wordRaw in sarcasmKeys)
-		{
-			final word:String = wordRaw.toUpperCase();
-			if (sarcasmKeysBuffer.contains(word) && allowedShit.match(word))
-			{
-				switch (word)
-				{
-					case 'ANNOUNCER':
-						FlxG.sound.play(Paths.sound('sarcasmComplete'));
-						trace('Were you talking about Portal 2?');
-						sarcasmKeysBuffer = '';
-				}
-			}
 		}
 
 		if (initialized && !transitioning && skippedIntro)
@@ -472,18 +335,18 @@ class TitleState extends MusicBeatState
 				var timer:Float = titleTimer;
 				if (timer >= 1)
 					timer = (-timer) + 2;
-				
+
 				timer = FlxEase.quadInOut(timer);
-				
+
 				titleText.color = FlxColor.interpolate(titleTextColors[0], titleTextColors[1], timer);
 				titleText.alpha = FlxMath.lerp(titleTextAlphas[0], titleTextAlphas[1], timer);
 			}
-			
+
 			if(pressedEnter)
 			{
 				titleText.color = FlxColor.WHITE;
 				titleText.alpha = 1;
-				
+
 				if(titleText != null) titleText.animation.play('press');
 
 				FlxG.camera.flash(ClientPrefs.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 1);
@@ -577,8 +440,6 @@ class TitleState extends MusicBeatState
 			switch (sickBeats)
 			{
 				case 1:
-					FlxG.sound.playMusic(Paths.music('freakyMenu-' + ClientPrefs.daMenuMusic), 0);
-
 					FlxG.sound.music.fadeIn(4, 0, 0.7);
 				case 2:
 					#if PSYCH_WATERMARKS
@@ -590,9 +451,6 @@ class TitleState extends MusicBeatState
 					#if PSYCH_WATERMARKS
 					addMoreText('Jordan Santiago', 15);
 					addMoreText('Moxie', 15);
-					addMoreText('UltimateQuack', 15);
-					addMoreText('Shadow Mario', 15);
-					addMoreText('RiverOaken', 15);
 					#else
 					addMoreText('present');
 					#end
@@ -653,33 +511,4 @@ class TitleState extends MusicBeatState
 			skippedIntro = true;
 		}
 	}
-}
-
-// copied & pasted from an haxelib, but it's better
-private class KeyboardFunctions
-{
-    /**
-     * Just a simple function to determine which key was pressed. Good for sequential keypresses. An example of how to use this is by simply adding the value to a string in the update function.
-     * 
-     * Ex: 
-     * ```
-     * public var value:String = '';
-     * override function update(elapsed:Float) {
-     *      value += keypressToString(); // This will add a key to the string everytime a key is pressed
-     * }
-     * ```
-     * @return Key that was pressed as a String
-     */
-    public static function keypressToString():String
-    {
-        var characterToAdd:String = "";
-        if (FlxG.keys.justPressed.ANY) {
-            final key = cast(FlxG.keys.firstJustPressed(), FlxKey);
-            if (key != FlxKey.NONE){
-                final i = key.toString().toUpperCase();
-                characterToAdd += FlxKey.fromStringMap.get(i);
-            }
-        }
-        return characterToAdd;
-    }
 }

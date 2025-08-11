@@ -245,11 +245,11 @@ class FlxGame extends Sprite
 	 * Instantiate a new game object.
 	 *
 	 * @param gameWidth        The width of your game in pixels. If `0`, the `Project.xml` width is used.
-	 *                         If the demensions don't match the `Project.xml`, 
+	 *                         If the demensions don't match the `Project.xml`,
 	 *                         [`scaleMode`](https://api.haxeflixel.com/flixel/system/scaleModes/index.html)
 	 *                         will determine the actual display size of the game.
 	 * @param gameHeight       The height of your game in pixels. If `0`, the `Project.xml` height is used.
-	 *                         If the demensions don't match the `Project.xml`, 
+	 *                         If the demensions don't match the `Project.xml`,
 	 *                         [`scaleMode`](https://api.haxeflixel.com/flixel/system/scaleModes/index.html)
 	 *                         will determine the actual display size of the game.
 	 * @param initialState     A constructor for the initial state, ex: `PlayState.new` or `()->new PlayState()`.
@@ -467,10 +467,7 @@ class FlxGame extends Sprite
 		var width:Int = FlxG.stage.stageWidth;
 		var height:Int = FlxG.stage.stageHeight;
 
-		#if !flash
-		if (FlxG.renderTile)
-			FlxG.bitmap.onContext();
-		#end
+		if (FlxG.renderTile) FlxG.bitmap.onContext();
 
 		resizeGame(width, height);
 	}
@@ -582,7 +579,7 @@ class FlxGame extends Sprite
 		#if FLX_DEBUG
 		_skipSplash = true;
 		#end
-		
+
 		if (_skipSplash)
 		{
 			_nextState = _initialState;

@@ -1,18 +1,14 @@
 package;
 
 // STOLEN FROM HAXEFLIXEL DEMO LOL
-import flixel.system.FlxAssets.FlxShader;
-import flixel.addons.display.FlxRuntimeShader;
-import openfl.display.BitmapData;
-import backend.FlxFixedShader;
-import openfl.display.ShaderInput;
-import flixel.FlxG;
-import openfl.Lib;
-
 import WiggleEffect.WiggleEffectType;
 import WiggleEffect.WiggleShader;
-
-using StringTools;
+import backend.FlxFixedShader;
+import flixel.addons.display.FlxRuntimeShader;
+import flixel.system.FlxAssets.FlxShader;
+import openfl.Lib;
+import openfl.display.BitmapData;
+import openfl.display.ShaderInput;
 
 typedef ShaderEffect = {
   var shader:Dynamic;
@@ -90,7 +86,7 @@ class ChromaticAberrationEffect extends Effect
     shader.gOffset.value = [0.0];
     shader.bOffset.value = [-offset];
   }
-	
+
 	public function setChrome(chromeOffset:Float):Void
 	{
 		shader.rOffset.value = [chromeOffset];
@@ -103,14 +99,14 @@ class ChromaticAberrationEffect extends Effect
 
 class ScanlineEffect extends Effect
 {
-	
+
 	public var shader:Scanline;
 	public function new (lockAlpha){
 		shader = new Scanline();
 		shader.lockAlpha.value = [lockAlpha];
 	}
-	
-	
+
+
 }
 
 
@@ -124,7 +120,7 @@ class Scanline extends FlxShader
 		{
 			if (mod(floor(openfl_TextureCoordv.y * openfl_TextureSize.y / scale), 2.0) == 0.0 ){
 				float bitch = 1.0;
-	
+
 				vec4 texColor = texture2D(bitmap, openfl_TextureCoordv);
 				if (lockAlpha) bitch = texColor.a;
 				gl_FragColor = vec4(0.0, 0.0, 0.0, bitch);
@@ -139,15 +135,15 @@ class Scanline extends FlxShader
 }
 
 class TiltshiftEffect extends Effect{
-	
+
 	public var shader:Tiltshift;
 	public function new (blurAmount:Float, center:Float){
 		shader = new Tiltshift();
 		shader.bluramount.value = [blurAmount];
 		shader.center.value = [center];
 	}
-	
-	
+
+
 }
 
 class Tiltshift extends FlxShader
@@ -158,76 +154,76 @@ class Tiltshift extends FlxShader
 		// Modified version of a tilt shift shader from Martin Jonasson (http://grapefrukt.com/)
 		// Read http://notes.underscorediscovery.com/ for context on shaders and this file
 		// License : MIT
-		 
+
 			/*
 				Take note that blurring in a single pass (the two for loops below) is more expensive than separating
 				the x and the y blur into different passes. This was used where bleeding edge performance
-				was not crucial and is to illustrate a point. 
-		 
-				The reason two passes is cheaper? 
+				was not crucial and is to illustrate a point.
+
+				The reason two passes is cheaper?
 				   texture2D is a fairly high cost call, sampling a texture.
-		 
-				   So, in a single pass, like below, there are 3 steps, per x and y. 
-		 
+
+				   So, in a single pass, like below, there are 3 steps, per x and y.
+
 				   That means a total of 9 "taps", it touches the texture to sample 9 times.
-		 
+
 				   Now imagine we apply this to some geometry, that is equal to 16 pixels on screen (tiny)
 				   (16 * 16) * 9 = 2304 samples taken, for width * height number of pixels, * 9 taps
 				   Now, if you split them up, it becomes 3 for x, and 3 for y, a total of 6 taps
 				   (16 * 16) * 6 = 1536 samples
-			
+
 				   That\'s on a *tiny* sprite, let\'s scale that up to 128x128 sprite...
 				   (128 * 128) * 9 = 147,456
 				   (128 * 128) * 6 =  98,304
-		 
+
 				   That\'s 33.33..% cheaper for splitting them up.
 				   That\'s with 3 steps, with higher steps (more taps per pass...)
-		 
+
 				   A really smooth, 6 steps, 6*6 = 36 taps for one pass, 12 taps for two pass
 				   You will notice, the curve is not linear, at 12 steps it\'s 144 vs 24 taps
 				   It becomes orders of magnitude slower to do single pass!
 				   Therefore, you split them up into two passes, one for x, one for y.
 			*/
-		 
+
 		// I am hardcoding the constants like a jerk
-			
+
 		uniform float bluramount  = 1.0;
 		uniform float center      = 1.0;
 		const float stepSize    = 0.004;
 		const float steps       = 3.0;
-		 
+
 		const float minOffs     = (float(steps-1.0)) / -2.0;
 		const float maxOffs     = (float(steps-1.0)) / +2.0;
-		 
+
 		void main() {
 			float amount;
 			vec4 blurred;
-				
-			// Work out how much to blur based on the mid point 
+
+			// Work out how much to blur based on the mid point
 			amount = pow((openfl_TextureCoordv.y * center) * 2.0 - 1.0, 2.0) * bluramount;
-				
+
 			// This is the accumulation of color from the surrounding pixels in the texture
 			blurred = vec4(0.0, 0.0, 0.0, 1.0);
-				
+
 			// From minimum offset to maximum offset
 			for (float offsX = minOffs; offsX <= maxOffs; ++offsX) {
 				for (float offsY = minOffs; offsY <= maxOffs; ++offsY) {
-		 
+
 					// copy the coord so we can mess with it
 					vec2 temp_tcoord = openfl_TextureCoordv.xy;
-		 
+
 					//work out which uv we want to sample now
 					temp_tcoord.x += offsX * amount * stepSize;
 					temp_tcoord.y += offsY * amount * stepSize;
-		 
-					// accumulate the sample 
+
+					// accumulate the sample
 					blurred += texture2D(bitmap, temp_tcoord);
 				}
-			} 
-				
+			}
+
 			// because we are doing an average, we divide by the amount (x AND y, hence steps * steps)
 			blurred /= float(steps * steps);
-		 
+
 			// return the final blurred color
 			gl_FragColor = blurred;
 		}')
@@ -237,14 +233,14 @@ class Tiltshift extends FlxShader
 	}
 }
 class GreyscaleEffect extends Effect{
-	
+
 	public var shader:GreyscaleShader = new GreyscaleShader();
-	
+
 	public function new(){
-		
+
 	}
-	
-	
+
+
 }
 class GreyscaleShader extends FlxShader{
 	@:glFragmentSource('
@@ -254,16 +250,16 @@ class GreyscaleShader extends FlxShader{
 		float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
 		gl_FragColor = vec4(vec3(gray), color.a);
 	}
-	
-	
+
+
 	')
-	
+
 	public function new(){
 		super();
 	}
-	
-	
-	
+
+
+
 }
 
 
@@ -273,7 +269,7 @@ class GreyscaleShader extends FlxShader{
 
 
 class GrainEffect extends Effect {
-	
+
 	public var shader:Grain;
 	public function new (grainsize, lumamount,lockAlpha){
 		shader = new Grain();
@@ -286,10 +282,10 @@ class GrainEffect extends Effect {
 	public function update(elapsed){
 		shader.uTime.value[0] += elapsed;
 	}
-	
-	
-	
-	
+
+
+
+
 }
 
 
@@ -331,7 +327,7 @@ class Grain extends FlxShader
 	uniform bool lockAlpha = false;
 
 		//a random texture generator, but you can also use a pre-computed perturbation texture
-	
+
 		vec4 rnm(in vec2 tc)
 		{
 			float noise =  sin(dot(tc + vec2(uTime,uTime),vec2(12.9898,78.233))) * 43758.5453;
@@ -339,8 +335,7 @@ class Grain extends FlxShader
 			float noiseR =  fract(noise)*2.0-1.0;
 			float noiseG =  fract(noise*1.2154)*2.0-1.0;
 			float noiseB =  fract(noise * 1.3453) * 2.0 - 1.0;
-			
-				
+
 			float noiseA =  (fract(noise * 1.3647) * 2.0 - 1.0);
 
 			return vec4(noiseR,noiseG,noiseB,noiseA);
@@ -432,7 +427,6 @@ class Grain extends FlxShader
 			float lum = smoothstep(0.2,0.0,luminance);
 			lum += luminance;
 
-
 			noise = mix(noise,vec3(0.0),pow(lum,4.0));
 			col = col+noise*grainamount;
 
@@ -445,8 +439,8 @@ class Grain extends FlxShader
 	{
 		super();
 	}
-	
-	
+
+
 }
 
 class VCRDistortionEffect extends Effect
@@ -592,7 +586,6 @@ class VCRDistortionShader extends FlxShader // https://www.shadertoy.com/view/ld
       float vigAmt = 1.0;
       float x =  0.;
 
-
       video.r = getVideo(vec2(x+uv.x+0.001,uv.y+0.001)).x+0.05;
       video.g = getVideo(vec2(x+uv.x+0.000,uv.y-0.002)).y+0.05;
       video.b = getVideo(vec2(x+uv.x-0.002,uv.y+0.000)).z+0.05;
@@ -608,7 +601,6 @@ class VCRDistortionShader extends FlxShader // https://www.shadertoy.com/view/ld
 
       if(vignetteOn)
     	 video *= vignette;
-
 
       gl_FragColor = mix(video,vec4(noise(uv * 75.)),.05);
 
@@ -665,11 +657,11 @@ vec3 VHS_effect(vec2 fragCoord, float color_fuckery)
     vec2    IQ = vec2(0,0),
             blur_size = vec2(16, 4),
             focal_point = blur_size * 0.5f;
-    
+
     float   smear_factor = blur_size.x * blur_size.y;
-    
+
     vec2    UV_Y = fragCoord / iResolution.xy;
-    
+
     // IQ blur
     for (int i = 0; i < int(smear_factor); i++)
     {
@@ -681,19 +673,19 @@ vec3 VHS_effect(vec2 fragCoord, float color_fuckery)
         IQ += RGB_to_YIQ(texture(iChannel0, uv_prime).xyz).yz;
     }
     IQ /= smear_factor;
-    
+
     vec3 color = vec3
     (
         RGB_to_YIQ(texture(iChannel0, UV_Y).xyz).r,
         IQ * (1.f + color_fuckery)
     );
-    
+
     // NTSC Dot Crawl
     color.x += (IQ.x*sin((fragCoord.x))) *
                (IQ.y*sin( fragCoord.y * PI * 0.5f));
-    
+
     color = YIQ_to_RGB(color);
-    
+
     return color;
 }
 
@@ -718,7 +710,7 @@ void main() {
 
 
 class ThreeDEffect extends Effect{
-	
+
 	public var shader:ThreeDShader = new ThreeDShader();
 	public function new(xrotation:Float=0,yrotation:Float=0,zrotation:Float=0,depth:Float=0){
 		shader.xrot.value = [xrotation];
@@ -726,8 +718,8 @@ class ThreeDEffect extends Effect{
 		shader.zrot.value = [zrotation];
 		shader.dept.value = [depth];
 	}
-	
-	
+
+
 }
 //coding is like hitting on women, you never start with the number
 //               -naether
@@ -748,25 +740,25 @@ float plane( in vec3 norm, in vec3 po, in vec3 ro, in vec3 rd ) {
 
 vec2 raytraceTexturedQuad(in vec3 rayOrigin, in vec3 rayDirection, in vec3 quadCenter, in vec3 quadRotation, in vec2 quadDimensions) {
     //Rotations ------------------
-    float a = sin(quadRotation.x); float b = cos(quadRotation.x); 
-    float c = sin(quadRotation.y); float d = cos(quadRotation.y); 
-    float e = sin(quadRotation.z); float f = cos(quadRotation.z); 
+    float a = sin(quadRotation.x); float b = cos(quadRotation.x);
+    float c = sin(quadRotation.y); float d = cos(quadRotation.y);
+    float e = sin(quadRotation.z); float f = cos(quadRotation.z);
     float ac = a*c;   float bc = b*c;
-	
-	mat3 RotationMatrix  = 
+
+	mat3 RotationMatrix  =
 			mat3(	  d*f,      d*e,  -c,
                  ac*f-b*e, ac*e+b*f, a*d,
                  bc*f+a*e, bc*e-a*f, b*d );
     //--------------------------------------
-    
+
     vec3 right = RotationMatrix * vec3(quadDimensions.x, 0.0, 0.0);
     vec3 up = RotationMatrix * vec3(0, quadDimensions.y, 0);
     vec3 normal = cross(right, up);
     normal /= length(normal);
-    
+
     //Find the plane hit point in space
     vec3 pos = (rayDirection * plane(normal, quadCenter, rayOrigin, rayDirection)) - quadCenter;
-    
+
     //Find the texture UV by projecting the hit point along the plane dirs
     return vec2(dot(pos, right) / dot(right, right),
                 dot(pos, up)    / dot(up,    up)) + 0.5;
@@ -779,83 +771,83 @@ void main() {
     vec2 p = (2.0 * screenUV) - 1.0;
     float screenAspect = 1280/720;
     p.x *= screenAspect;
-    
+
     //Normalized Ray Dir
     vec3 dir = vec3(p.x, p.y, 1.0);
     dir /= length(dir);
-    
+
     //Define the plane
     vec3 planePosition = vec3(0.0, 0.0, dept);
     vec3 planeRotation = vec3(xrot, yrot, zrot);//this the shit you needa change
     vec2 planeDimension = vec2(-screenAspect, 1.0);
-    
+
     vec2 uv = raytraceTexturedQuad(vec3(0), dir, planePosition, planeRotation, planeDimension);
-	
+
     //If we hit the rectangle, sample the texture
     if (abs(uv.x - 0.5) < 0.5 && abs(uv.y - 0.5) < 0.5) {
-		
+
 		vec3 tex = flixel_texture2D(bitmap, uv).xyz;
 		float bitch = 1.0;
 		if (tex.z == 0.0){
 			bitch = 0.0;
 		}
-		
+
 	  gl_FragColor = vec4(flixel_texture2D(bitmap, uv).xyz, bitch);
     }
 }
 
 
 	')
-	
+
 	public function new(){
 		super();
 	}
-	
+
 }
 
 //Boing! by ThaeHan
 
 class FuckingTriangleEffect extends Effect{
-	
+
 	public var shader:FuckingTriangle = new FuckingTriangle();
-	
+
 	public function new(rotx:Float, roty:Float){
 		shader.rotX.value = [rotx];
 		shader.rotY.value = [roty];
-		
+
 	}
-	
+
 }
 
 
 class FuckingTriangle extends FlxShader{
-	
+
 	@:glFragmentSource('
-	
-	
+
+
 			#pragma header
-			
+
 			const vec3 vertices[18] = vec3[18] (
 			vec3(-0.5, 0.0, -0.5),
 			vec3( 0.5, 0.0, -0.5),
 			vec3(-0.5, 0.0,  0.5),
-			
+
 			vec3(-0.5, 0.0,  0.5),
 			vec3( 0.5, 0.0, -0.5),
 			vec3( 0.5, 0.0,  0.5),
-			
+
 			vec3(-0.5, 0.0, -0.5),
 			vec3( 0.5, 0.0, -0.5),
 			vec3( 0.0, 1.0,  0.0),
-			
+
 			vec3(-0.5, 0.0,  0.5),
 			vec3( 0.5, 0.0,  0.5),
 			vec3( 0.0, 1.0,  0.0),
-			
+
 			vec3(-0.5, 0.0, -0.5),
 			vec3(-0.5, 0.0,  0.5),
 			vec3( 0.0, 1.0,  0.0),
-			
+
 			vec3( 0.5, 0.0, -0.5),
 			vec3( 0.5, 0.0,  0.5),
 			vec3( 0.0, 1.0,  0.0)
@@ -865,23 +857,23 @@ class FuckingTriangle extends FlxShader{
 			vec2(0., 1.),
 			vec2(1., 1.),
 			vec2(0., 0.),
-			
+
 			vec2(0., 0.),
 			vec2(1., 1.),
 			vec2(1., 0.),
-			
+
 			vec2(0., 1.),
 			vec2(1., 1.),
 			vec2(.5, 0.),
-			
+
 			vec2(0., 1.),
 			vec2(1., 1.),
 			vec2(.5, 0.),
-			
+
 			vec2(0., 1.),
 			vec2(1., 1.),
 			vec2(.5, 0.),
-			
+
 			vec2(0., 1.),
 			vec2(1., 1.),
 			vec2(.5, 0.)
@@ -906,40 +898,40 @@ class FuckingTriangle extends FlxShader{
 			uniform float rotY = 45.;
 		vec4 pixel(in vec2 ndc, in float aspect, inout float depth, in int vertexIndex) {
 
-			
-			
+
+
 
 			mat4 proj  = perspective(fov, aspect, near, far);
 			mat4 view  = translate(-cameraPos);
 			mat4 model = rotateX(rotX) * rotateY(rotY);
-			
+
 			mat4 mvp  = proj * view * model;
 
 			vec4 v0 = vertexShader(vertices[vertexIndex  ], mvp);
 			vec4 v1 = vertexShader(vertices[vertexIndex+1], mvp);
 			vec4 v2 = vertexShader(vertices[vertexIndex+2], mvp);
-			
+
 			vec2 t0 = texCoords[vertexIndex  ] / v0.w; float oow0 = 1. / v0.w;
 			vec2 t1 = texCoords[vertexIndex+1] / v1.w; float oow1 = 1. / v1.w;
 			vec2 t2 = texCoords[vertexIndex+2] / v2.w; float oow2 = 1. / v2.w;
-			
+
 			v0 /= v0.w;
 			v1 /= v1.w;
 			v2 /= v2.w;
-			
+
 			vec3 tri = bary(v0.xy, v1.xy, v2.xy, ndc);
-			
+
 			if(tri.x < 0. || tri.x > 1. || tri.y < 0. || tri.y > 1. || tri.z < 0. || tri.z > 1.) {
 				return vec4(0.);
 			}
-			
+
 			float triDepth = baryLerp(v0.z, v1.z, v2.z, tri);
 			if(triDepth > depth || triDepth < -1. || triDepth > 1.) {
 				return vec4(0.);
 			}
-			
+
 			depth = triDepth;
-			
+
 			float oneOverW = baryLerp(oow0, oow1, oow2, tri);
 			vec2 uv        = uvLerp(t0, t1, t2, tri) / oneOverW;
 			return fragmentShader(uv);
@@ -952,47 +944,47 @@ void main()
     vec2 ndc = ((gl_FragCoord.xy * 2.) / openfl_TextureSize.xy) - vec2(1.);
     float aspect = openfl_TextureSize.x / openfl_TextureSize.y;
     vec3 outColor = vec3(.4,.6,.9);
-    
+
     float depth = 1.0;
     for(int i = 0; i < 18; i += 3) {
         vec4 tri = pixel(ndc, aspect, depth, i);
         outColor = mix(outColor.rgb, tri.rgb, tri.a);
     }
-    
+
     gl_FragColor = vec4(outColor, 1.);
 }
-	
-	
-	
+
+
+
 	')
-	
-	
+
+
 	public function new(){
 		super();
 	}
-	
-	
+
+
 }
 class BloomEffect extends Effect{
-	
+
 	public var shader:BloomShader = new BloomShader();
 	public function new(blurSize:Float, intensity:Float){
 		shader.blurSize.value = [blurSize];
 		shader.intensity.value = [intensity];
-		
+
 	}
-	
-	
+
+
 }
 
 
 class BloomShader extends FlxShader{
-	
-	
+
+
 	@:glFragmentSource('
-	
+
 	#pragma header
-	
+
 	uniform float intensity = 0.35;
 	uniform float blurSize = 1.0/512.0;
 void main()
@@ -1002,7 +994,7 @@ void main()
    int j;
    int i;
 
-   //thank you! http://www.gamerendering.com/2008/10/11/gaussian-blur-filter-shader/ for the 
+   //thank you! http://www.gamerendering.com/2008/10/11/gaussian-blur-filter-shader/ for the
    //blur tutorial
    // blur in y (vertical)
    // take nine samples, with the distance blurSize between them
@@ -1015,7 +1007,7 @@ void main()
    sum += flixel_texture2D(bitmap, vec2(texcoord.x + 2.0*blurSize, texcoord.y)) * 0.12;
    sum += flixel_texture2D(bitmap, vec2(texcoord.x + 3.0*blurSize, texcoord.y)) * 0.09;
    sum += flixel_texture2D(bitmap, vec2(texcoord.x + 4.0*blurSize, texcoord.y)) * 0.05;
-	
+
 	// blur in y (vertical)
    // take nine samples, with the distance blurSize between them
    sum += flixel_texture2D(bitmap, vec2(texcoord.x, texcoord.y - 4.0*blurSize)) * 0.05;
@@ -1029,21 +1021,21 @@ void main()
    sum += flixel_texture2D(bitmap, vec2(texcoord.x, texcoord.y + 4.0*blurSize)) * 0.05;
 
    //increase blur with intensity!
-  gl_FragColor = sum*intensity + flixel_texture2D(bitmap, texcoord); 
+  gl_FragColor = sum*intensity + flixel_texture2D(bitmap, texcoord);
   // if(sin(iTime) > 0.0)
    //    fragColor = sum * sin(iTime)+ texture(iChannel0, texcoord);
   // else
 	//   fragColor = sum * -sin(iTime)+ texture(iChannel0, texcoord);
 }
-	
-	
+
+
 	')
-	
+
 	public function new(){
 		super();
 	}
-	
-	
+
+
 }
 
 
@@ -1071,7 +1063,7 @@ _/__________\_
    |______|
    |   |  |
    |___|__|
-    
+
 
 */
 
@@ -1108,14 +1100,14 @@ class GlitchEffect extends Effect
         shader.uSpeed.value = [waveSpeed];
         return v;
     }
-    
+
     function set_waveFrequency(v:Float):Float
     {
         waveFrequency = v;
         shader.uFrequency.value = [waveFrequency];
         return v;
     }
-    
+
     function set_waveAmplitude(v:Float):Float
     {
         waveAmplitude = v;
@@ -1154,14 +1146,14 @@ class DistortBGEffect extends Effect
         shader.uSpeed.value = [waveSpeed];
         return v;
     }
-    
+
     function set_waveFrequency(v:Float):Float
     {
         waveFrequency = v;
         shader.uFrequency.value = [waveFrequency];
         return v;
     }
-    
+
     function set_waveAmplitude(v:Float):Float
     {
         waveAmplitude = v;
@@ -1206,14 +1198,14 @@ class PulseEffectAlt
         shader.uEnabled.value = [Enabled];
         return v;
     }
-    
+
     function set_waveFrequency(v:Float):Float
     {
         waveFrequency = v;
         shader.uFrequency.value = [waveFrequency];
         return v;
     }
-    
+
     function set_waveAmplitude(v:Float):Float
     {
         waveAmplitude = v;
@@ -1262,14 +1254,14 @@ class PulseEffect extends Effect
         shader.uEnabled.value = [Enabled];
         return v;
     }
-    
+
     function set_waveFrequency(v:Float):Float
     {
         waveFrequency = v;
         shader.uFrequency.value = [waveFrequency];
         return v;
     }
-    
+
     function set_waveAmplitude(v:Float):Float
     {
         waveAmplitude = v;
@@ -1297,17 +1289,17 @@ class GlitchShader extends FlxShader
 
     //modified version of the wave shader to create weird garbled corruption like messes
     uniform float uTime;
-    
+
     /**
      * How fast the waves move over time
      */
     uniform float uSpeed;
-    
+
     /**
      * Number of waves over time
      */
     uniform float uFrequency;
-    
+
     /**
      * How much the pixels are going to stretch over the waves
      */
@@ -1317,7 +1309,7 @@ class GlitchShader extends FlxShader
     {
         float x = 0.0;
         float y = 0.0;
-        
+
         float offsetX = sin(pt.y * uFrequency + uTime * uSpeed) * (uWaveAmplitude / pt.x * pt.y);
         float offsetY = sin(pt.x * uFrequency - uTime * uSpeed) * (uWaveAmplitude / pt.y * pt.x);
         pt.x += offsetX; // * (pt.y - 1.0); // <- Uncomment to stop bottom part of the screen from moving
@@ -1342,10 +1334,10 @@ class InvertShader extends FlxShader
 {
     @:glFragmentSource('
     #pragma header
-    
+
     vec4 sineWave(vec4 pt)
     {
-	
+
 	return vec4(1.0 - pt.x, 1.0 - pt.y, 1.0 - pt.z, pt.w);
     }
 
@@ -1372,17 +1364,17 @@ class DistortBGShader extends FlxShader
 
     //gives the character a glitchy, distorted outline
     uniform float uTime;
-    
+
     /**
      * How fast the waves move over time
      */
     uniform float uSpeed;
-    
+
     /**
      * Number of waves over time
      */
     uniform float uFrequency;
-    
+
     /**
      * How much the pixels are going to stretch over the waves
      */
@@ -1392,7 +1384,7 @@ class DistortBGShader extends FlxShader
     {
         float x = 0.0;
         float y = 0.0;
-        
+
         float offsetX = sin(pt.x * uFrequency + uTime * uSpeed) * (uWaveAmplitude / pt.x * pt.y);
         float offsetY = sin(pt.y * uFrequency - uTime * uSpeed) * (uWaveAmplitude);
         pt.x += offsetX; // * (pt.y - 1.0); // <- Uncomment to stop bottom part of the screen from moving
@@ -1427,19 +1419,19 @@ class PulseShader extends FlxFixedShader
 
     //modified version of the wave shader to create weird garbled corruption like messes
     uniform float uTime;
-    
+
     /**
      * How fast the waves move over time
      */
     uniform float uSpeed;
-    
+
     /**
      * Number of waves over time
      */
     uniform float uFrequency;
 
     uniform bool uEnabled;
-    
+
     /**
      * How much the pixels are going to stretch over the waves
      */
@@ -1532,16 +1524,16 @@ class BlockedGlitchShader extends FlxShader
     uniform sampler2D imageData;
     uniform vec2 screenSize;
     // ---------------------------------------------------------------------------------------------------------------------
-    
+
     float rand(vec2 co){
       return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453) * 2.0 - 1.0;
     }
-    
+
     float offset(float blocks, vec2 uv) {
       float shaderTime = time*RATE;
       return rand(vec2(shaderTime, floor(uv.y * blocks)));
     }
-    
+
     void main(void) {
       vec2 uv = openfl_TextureCoordv;
       gl_FragColor = flixel_texture2D(bitmap, uv);

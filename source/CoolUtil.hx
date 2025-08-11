@@ -1,32 +1,11 @@
 package;
 
 import Song.SwagSong;
-import flixel.FlxG;
-import flixel.math.FlxMath;
-import flixel.sound.FlxSound;
-import flixel.text.FlxText;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
-import flixel.util.FlxSave;
 import haxe.io.Bytes;
 import haxe.io.Path;
 import lime.app.Application;
-import lime.utils.AssetLibrary;
-import lime.utils.AssetManifest;
-import lime.utils.Assets as LimeAssets;
-import openfl.utils.Assets;
 import shaders.RGBPalette.RGBShaderReference;
 import utils.CoolSystemStuff;
-
-using StringTools;
-
-#if sys
-import sys.FileSystem;
-import sys.io.File;
-import sys.io.Process;
-#else
-import openfl.utils.Assets;
-#end
 
 class CoolUtil
 {
@@ -100,6 +79,28 @@ class CoolUtil
 		return (m / snap);
 	}
 
+	public static function isVersionNewer(versionA:String, versionB:String):Bool {
+		var partsA = versionA.split(".").map(Std.parseInt);
+		var partsB = versionB.split(".").map(Std.parseInt);
+
+		// Pad shorter version with zeros (e.g. "1.2" becomes "1.2.0")
+		while (partsA.length < partsB.length) partsA.push(0);
+		while (partsB.length < partsA.length) partsB.push(0);
+
+		for (i in 0...partsA.length) {
+			if (partsA[i] > partsB[i]){
+				trace("versionA is greater!");
+				return true;	
+			}
+			if (partsA[i] < partsB[i]){
+				trace("versionA is less!");
+				return false;
+			}
+		}
+
+		return false; // Equal versions
+	}
+
 	#if desktop
 	public static var resW:Float = 1;
 	public static var resH:Float = 1;
@@ -171,39 +172,6 @@ class CoolUtil
 		scriptContent += "start /b \"\" \"!destinationDirectory!\\" + winExeName + "\"\r\n"; // Use /b to prevent new window, empty "" for title
 		scriptContent += "del \"%~f0\" >nul 2>&1\r\n"; // Delete self
 		scriptContent += "endlocal\r\n";
-		#elseif linux
-		scriptFileName = "update.sh";
-		var linuxExeName = appName; // The actual executable name (e.g., JSEngine)
-
-		scriptContent = "#!/bin/bash\n";
-		scriptContent += "set -e\n";
-		scriptContent += "source_dir=\"" + sourceDirectory + "\"\n";
-		scriptContent += "destination_dir=\"" + destinationDirectory + "\"\n";
-		scriptContent += "echo \"Source directory: $source_dir\"\n";
-		scriptContent += "echo \"Destination directory: $destination_dir\"\n";
-
-		scriptContent += "if [ ! -d \"$source_dir\" ]; then\n";
-		scriptContent += "  echo \"Source directory does not exist: $source_dir\"\n";
-		scriptContent += "  read -p \"Press Enter to continue...\"\n";
-		scriptContent += "  exit 1\n";
-		scriptContent += "fi\n";
-
-		scriptContent += "echo \"Attempting to kill existing application...\"\n";
-		scriptContent += "killall \"" + linuxExeName + "\" || true\n"; // `|| true` to prevent script from exiting if app isn't running
-		scriptContent += "echo \"Waiting for 5 seconds to ensure application is closed...\"\n";
-		scriptContent += "sleep 5\n";
-
-		scriptContent += "echo \"Copying files...\"\n";
-		scriptContent += "cp -R \"$source_dir\"/* \"$destination_dir/\"\n"; // Copy contents of raw to destination
-		scriptContent += "echo \"Setting executable permissions for " + linuxExeName + "...\"\n";
-		scriptContent += "chmod +x \"$destination_dir/" + linuxExeName + "\"\n"; // Ensure executable bit is set
-
-		scriptContent += "echo \"Cleaning up temporary update files...\"\n";
-		scriptContent += "rm -rf \"$source_dir\"\n"; // Delete raw folder
-		scriptContent += "rm -rf \"" + Path.join([exeDir, "update"]) + "\"\n"; // Delete parent update folder
-		scriptContent += "echo \"Restarting application...\"\n";
-		scriptContent += "nohup \"$destination_dir/" + linuxExeName + "\" > /dev/null 2>&1 &\n"; // Run in background, detach from shell
-		scriptContent += "rm -- \"$0\"\n"; // Delete self (the update.sh script)
 		#else
 		// Fallback for unsupported platforms or just exit
 		Application.current.window.alert("Automatic update is not supported on this platform.");
@@ -214,27 +182,6 @@ class CoolUtil
 		// Save the script file
 		var scriptPath = Path.join([exeDir, scriptFileName]);
 		File.saveContent(scriptPath, scriptContent);
-
-		#if linux
-		// Make the script executable on Unix-like systems
-		try
-		{
-			var chmodProcess = new Process("chmod", ["+x", scriptPath]);
-			var chmodResult = chmodProcess.exitCode();
-			if (chmodResult != 0)
-			{
-				trace("Error setting script executable permissions: " + chmodResult);
-				Application.current.window.alert("Could not set update script permissions. Please run the game as root or manually update.");
-				Sys.exit(1); // Exit with an error code
-			}
-		}
-		catch (e:Dynamic)
-		{
-			trace("Exception while setting script executable permissions: " + e);
-			Application.current.window.alert("An error occurred during update: " + e);
-			Sys.exit(1);
-		}
-		#end
 
 		// Execute the script
 		new Process(scriptPath, []);
@@ -550,7 +497,7 @@ class CoolUtil
 
 	inline public static function boundTo(value:Float, min:Float, max:Float):Float
 	{
-		return Math.max(min, Math.min(max, value));
+		return clamp(value, min, max);
 	}
 
 	inline public static function clamp(value:Float, min:Float, max:Float):Float
@@ -676,12 +623,7 @@ class CoolUtil
 
 	public static function numberArray(max:Int, ?min = 0):Array<Int>
 	{
-		var dumbArray:Array<Int> = [];
-		for (i in min...max)
-		{
-			dumbArray.push(i);
-		}
-		return dumbArray;
+		return [for (i in min...max) i];
 	}
 
 	public static function browserLoad(site:String)

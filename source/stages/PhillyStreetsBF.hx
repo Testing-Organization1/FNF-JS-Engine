@@ -1,15 +1,10 @@
 package stages;
 
+import GameOverSubstate;
+import flixel.addons.display.FlxTiledSprite;
 import openfl.filters.ShaderFilter;
 import shaders.RainShader;
-
-import flixel.addons.display.FlxTiledSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-
-import GameOverSubstate;
 import stages.objects.*;
-
-using StringTools;
 
 class PhillyStreetsBF extends BaseStage
 {
@@ -21,7 +16,7 @@ class PhillyStreetsBF extends BaseStage
 	var rainShader:RainShader;
 	var rainShaderStartIntensity:Float = 0;
 	var rainShaderEndIntensity:Float = 0;
-	
+
 	var scrollingSky:FlxTiledSprite;
 	var phillyTraffic:BGSprite;
 
@@ -45,7 +40,7 @@ class PhillyStreetsBF extends BaseStage
 			scrollingSky.scrollFactor.set(0.1, 0.1);
 			scrollingSky.scale.set(0.65, 0.65);
 			add(scrollingSky);
-		
+
 			var phillySkyline:BGSprite = new BGSprite('phillyStreets/phillySkyline', -545, -273, 0.2, 0.2);
 			add(phillySkyline);
 
@@ -98,7 +93,7 @@ class PhillyStreetsBF extends BaseStage
 
 		var phillyForeground:BGSprite = new BGSprite('phillyStreets/phillyForeground', 88, 317, 1, 1);
 		add(phillyForeground);
-		
+
 		if(ClientPrefs.shaders)
 			setupRainShader();
 	}
@@ -122,7 +117,7 @@ class PhillyStreetsBF extends BaseStage
 		rainShader.intensity = rainShaderStartIntensity;
 		FlxG.camera.setFilters([new ShaderFilter(rainShader)]);
 	}
-	
+
 	override function update(elapsed:Float)
 	{
 		if(scrollingSky != null) scrollingSky.scrollX -= elapsed * 22;
@@ -161,7 +156,7 @@ class PhillyStreetsBF extends BaseStage
 
 		if (curBeat == (lastChange + changeInterval)) changeLights(curBeat);
 	}
-	
+
 	function changeLights(beat:Int):Void
 	{
 		lastChange = beat;
@@ -239,7 +234,7 @@ class PhillyStreetsBF extends BaseStage
 			if(lightsStop == false) finishCarLights(phillyCars);
 		}});
 	}
-	
+
 	function driveCar(sprite:BGSprite):Void
 	{
 		carInterruptable = false;

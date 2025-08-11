@@ -1,13 +1,7 @@
 package;
 
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.util.FlxColor;
 import shaders.RGBPalette.RGBShaderReference;
 import shaders.RGBPalette;
-
-using StringTools;
 
 class StrumNote extends FlxSprite
 {
@@ -18,10 +12,10 @@ class StrumNote extends FlxSprite
 	public var direction:Float = 90;//plan on doing scroll directions soon -bb
 	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
-	
+
 	public var player:Int;
 	public var ogNoteskin:String = null;
-	
+
 	public var texture(default, set):String = null;
 	private function set_texture(value:String):String {
 		if(texture != value) {
@@ -40,7 +34,7 @@ class StrumNote extends FlxSprite
 		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB || !ClientPrefs.enableColorShader) useRGBShader = false;
-		
+
 		var arr:Array<FlxColor> = ClientPrefs.arrowRGB[leData];
 		if(PlayState.isPixelStage) arr = ClientPrefs.arrowRGBPixel[leData];
 		if(arr != null && leData <= arr.length && useRGBShader)
@@ -196,7 +190,7 @@ class StrumNote extends FlxSprite
 	}
 	public function resetRGB()
 	{
-		if (rgbShader != null && animation.curAnim != null && animation.curAnim.name == 'static') 
+		if (rgbShader != null && animation.curAnim != null && animation.curAnim.name == 'static')
 		{
 			switch (ClientPrefs.noteColorStyle)
 			{
@@ -209,7 +203,7 @@ class StrumNote extends FlxSprite
 				rgbShader.g = FlxColor.WHITE;
 				rgbShader.b = 0xFF424242;
 				default:
-				
+
 			}
 			rgbShader.enabled = false;
 		}

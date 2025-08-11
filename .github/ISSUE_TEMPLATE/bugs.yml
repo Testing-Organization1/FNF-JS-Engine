@@ -43,7 +43,7 @@ body:
     id: knownIssueCheck
     attributes:
       label: "Did you check if this issue is already known?"
-      description: "[Click me here to see the Known Issues and Fixes... Please?](https://github.com/JordanSantiagoYT/FNF-JS-Engine/issues/359)"
+      description: "[Click me here to see the Known Issues and Fixes... Please?](https://github.com/JordanSantiagoYT/FNF-JS-Engine/issues/1031)"
       options:
         - "No"
         - "Yes"

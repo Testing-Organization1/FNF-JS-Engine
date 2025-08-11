@@ -13,7 +13,6 @@ class StartupState extends MusicBeatState
 	var canChristmas = false;
 	var canAutism = false;
 
-
 	private var vidSprite:VideoSprite = null;
 	private function startVideo(name:String, ?library:String = null, ?callback:Void->Void = null, canSkip:Bool = true, loop:Bool = false, playOnLoad:Bool = true)
 	{
@@ -171,10 +170,10 @@ class StartupState extends MusicBeatState
 						logo.updateHitbox();
 						logo.screenCenter();
 						FlxTween.tween(logo, {alpha: 1, "scale.x": 1, "scale.y": 1}, 2, {ease: FlxEase.expoOut, onComplete: _ -> onIntroDone(1.5)});
-					} 
-					else 
+					}
+					else
 						doIntro();
-					
+
 				case 7:
 					if (canAutism)
 					{
@@ -184,10 +183,10 @@ class StartupState extends MusicBeatState
 						logo.updateHitbox();
 						logo.screenCenter();
 						FlxTween.tween(logo, {alpha: 1, "scale.x": 1, "scale.y": 1}, 0.95, {ease: FlxEase.linear, onComplete: _ -> onIntroDone()});
-					} 
-					else 
+					}
+					else
 						doIntro();
-					
+
 			}
 		}
 		#end

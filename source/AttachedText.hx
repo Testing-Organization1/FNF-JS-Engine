@@ -1,8 +1,5 @@
 package;
 
-import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-
 class AttachedText extends Alphabet
 {
 	public var offsetX:Float = 0;

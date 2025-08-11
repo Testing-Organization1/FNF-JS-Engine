@@ -2,29 +2,19 @@ package;
 
 import flixel.animation.FlxAnimationController;
 import flixel.graphics.FlxGraphic;
-import flixel.graphics.FlxGraphic;
-import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.graphics.frames.FlxFramesCollection;
-import haxe.Json;
 import haxe.io.Bytes;
 import haxe.io.Path;
 import lime.media.AudioBuffer;
 import lime.media.vorbis.VorbisFile;
-import lime.utils.Assets;
 import openfl.display.BitmapData;
-import openfl.display.BitmapData;
-import openfl.display3D.textures.RectangleTexture;
 import openfl.display3D.textures.RectangleTexture;
 import openfl.geom.Rectangle;
 import openfl.media.Sound;
 import openfl.system.System;
 import openfl.utils.AssetType;
-import openfl.utils.Assets as OpenFlAssets;
 
-using StringTools;
 #if sys
-import sys.FileSystem;
-import sys.io.File;
 #end
 #if cpp
 import cpp.vm.Gc;
@@ -525,6 +515,34 @@ class Paths
 		return inst;
 		#end
 	}
+    
+    static public function playMenuMusic(force:Bool = false, volume:Float = 1):Void
+    {
+        if (FlxG.sound.music == null || force) {
+            var playAprilFools:Bool = false;
+
+            // Check if it's April Fools and not disabled in settings
+            #if APRIL_FOOLS
+            if (!ClientPrefs.disableAprilFools) {
+	            final date:Date = Date.now();
+                if (date.getMonth() == 3 && date.getDate() == 1)
+                    playAprilFools = true;
+            }
+            #end
+
+            if (playAprilFools) {
+                FlxG.sound.playMusic(Paths.music('aprilFools'), volume);
+            } else {
+                final musicName = 'freakyMenu-' + ClientPrefs.daMenuMusic;
+
+                #if MODS_ALLOWED
+                playModMusic('freakyMenu', musicName, volume); // TODO: add HScript support here
+                #else
+                FlxG.sound.playMusic(music(musicName), volume);
+                #end
+            }
+        }
+    }
 
 	//For song events.
 	static public function songEvents(song:String, ?difficulty:String, ?onlyEventsString:Bool = false):String {
@@ -665,7 +683,7 @@ class Paths
 			return true;
 		}
 		#end
-		
+
 		if (OpenFlAssets.exists(key, type)) {
 			return true;
 		}
@@ -679,13 +697,13 @@ class Paths
 			return true;
 		}
 		#end
-		
+
 		if (OpenFlAssets.exists(getPath(key, type, library), type)) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	inline public static function getContent(path:String) {
 		#if sys
 		if (path.contains(':'))
@@ -901,6 +919,16 @@ class Paths
 	inline static public function modsImagesJson(key:String)
 		return modFolders('images/' + key + '.json');
 
+    public static function playModMusic(file:String, fallback:String, volume:Float = 1):Void {
+        final path = Paths.modFolders('music/' + file + '.ogg');
+        if (FileSystem.exists(path)) {
+            final sound = Sound.fromFile(path);
+            FlxG.sound.playMusic(sound, volume, true);
+        } else {
+            FlxG.sound.playMusic(Paths.music(fallback), volume);
+        }
+    }
+
 	static public function modFolders(key:String) {
 		if(currentModDirectory != null && currentModDirectory.length > 0) {
 			var fileToCheck:String = mods(currentModDirectory + '/' + key);
@@ -917,6 +945,12 @@ class Paths
 		}
 		return 'mods/' + key;
 	}
+
+	public static function getBackupFilePath(songPath:String, diff:String):String {
+	  final fileName = songPath + "-" + diff + ".json";
+	  return Paths.modsJson("$songPath/$fileName");
+	}
+
 
 	public static var globalMods:Array<String> = [];
 

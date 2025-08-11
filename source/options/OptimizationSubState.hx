@@ -71,14 +71,14 @@ class OptimizationSubState extends BaseOptionsMenu
 			false);
 		addOption(option);
 
-		var option:Option = new Option('Disable Note Hit Lua Calls',
+		var option:Option = new Option('Disable Hit Lua Calls',
 			"If checked, the game will not call note hit functions when a note is hit.",
 			'noHitFuncs',
 			'bool',
 			false);
 		addOption(option);
 
-		var option:Option = new Option('Disable Skipped Note Lua Calls',
+		var option:Option = new Option('Disable Skip Lua Calls',
 			"If checked, the game will not call note hit functions for skipped notes.",
 			'noSkipFuncs',
 			'bool',
@@ -91,6 +91,18 @@ class OptimizationSubState extends BaseOptionsMenu
 			'bool',
 			false);
 		addOption(option);
+
+		var option:Option = new Option('Max Rendered Notes: ',
+			"The max amount of notes that the game can render onscreen.\nTo remove this limit, set it to 0.",
+			'maxNotes',
+			'int',
+			0);
+		addOption(option);
+
+		option.scrollSpeed = 2000;
+		option.minValue = 0;
+		option.maxValue = 99999;
+		option.displayFormat = '%v Notes';
 
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length-1]];
 

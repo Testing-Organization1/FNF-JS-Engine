@@ -1,10 +1,7 @@
 package editors;
 
-import flixel.FlxG;
 import flixel.FlxState;
 import model.objects.flixel.Flixel;
-import flixel.text.FlxText;
-import flixel.util.FlxDestroyUtil;
 
 class BenchmarkState extends FlxState
 {
@@ -43,7 +40,7 @@ class BenchmarkState extends FlxState
 							mesh.material.dispose();
 							mesh.material = null;
 						}
-						
+
 						// Dispose geometry next
 						if (mesh.geometry != null) {
 							mesh.geometry.dispose();

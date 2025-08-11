@@ -1,9 +1,5 @@
 package;
 
-import flixel.FlxSprite;
-
-using StringTools;
-
 class AttachedSprite extends FlxSprite
 {
 	public var sprTracker:FlxSprite;
@@ -44,7 +40,7 @@ class AttachedSprite extends FlxSprite
 			if(copyAlpha)
 				alpha = sprTracker.alpha * alphaMult;
 
-			if(copyVisible) 
+			if(copyVisible)
 				visible = sprTracker.visible;
 		}
 	}

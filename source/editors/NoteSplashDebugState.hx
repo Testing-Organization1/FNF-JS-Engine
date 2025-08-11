@@ -1,16 +1,8 @@
 package editors;
 
 import Note;
-import StrumNote;
 import NoteSplash;
-import flixel.FlxSprite;
-import flixel.FlxG;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import flixel.math.FlxMath;
-import flixel.util.FlxTimer;
-import sys.io.File;
+import StrumNote;
 import flixel.addons.ui.FlxInputText;
 import flixel.addons.ui.FlxUINumericStepper;
 
@@ -24,7 +16,7 @@ class NoteSplashDebugState extends MusicBeatState
 	var selection:FlxSprite;
 	var notes:FlxTypedGroup<StrumNote>;
 	var splashes:FlxTypedGroup<FlxSprite>;
-	
+
 	var imageInputText:FlxInputText;
 	var nameInputText:FlxInputText;
 	var stepperMinFps:FlxUINumericStepper;
@@ -122,7 +114,7 @@ class NoteSplashDebugState extends MusicBeatState
 			{
 				case 'enter':
 					nameInputText.hasFocus = false;
-				
+
 				default:
 					trace('changed anim name to $text');
 					config.anim = text;
@@ -207,7 +199,7 @@ class NoteSplashDebugState extends MusicBeatState
 		super.update(elapsed);
 
 		if(!notTyping) return;
-		
+
 		if (FlxG.keys.justPressed.A) changeSelection(-1);
 		else if (FlxG.keys.justPressed.D) changeSelection(1);
 
@@ -222,7 +214,7 @@ class NoteSplashDebugState extends MusicBeatState
 
 			if(FlxG.keys.justPressed.UP) movey = 1;
 			else if(FlxG.keys.justPressed.DOWN) movey = -1;
-			
+
 			if(FlxG.keys.pressed.SHIFT)
 			{
 				movex *= 10;
@@ -301,7 +293,7 @@ class NoteSplashDebugState extends MusicBeatState
 			if(forceFrame < 0) forceFrame = 0;
 			else if(forceFrame >= maxFrame) forceFrame = maxFrame - 1;
 			//trace('curFrame: $forceFrame');
-			
+
 			curFrameText.text = 'Force Frame: ${forceFrame+1} / $maxFrame\n(Press Q/E to change)';
 			splashes.forEachAlive(function(spr:FlxSprite) {
 				spr.animation.curAnim.paused = true;
@@ -325,7 +317,7 @@ class NoteSplashDebugState extends MusicBeatState
 		splashes.forEachAlive(function(spr:FlxSprite) {
 			spr.frames = Paths.getSparrowAtlas(texturePath);
 		});
-	
+
 		// Initialize config
 		Paths.splashConfigs.clear();
 		if (!Paths.splashConfigs.exists(textureName)) Paths.initSplashConfig(textureName);
@@ -366,7 +358,7 @@ class NoteSplashDebugState extends MusicBeatState
 		savedText.text = 'Can\'t save on this platform, too bad.';
 		#end
 	}
-	
+
 	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>)
 	{
 		if (id == FlxUINumericStepper.CHANGE_EVENT && (sender is FlxUINumericStepper))
@@ -435,10 +427,10 @@ class NoteSplashDebugState extends MusicBeatState
 			{
 				var spr:FlxSprite = splashes.members[i];
 				spr.animation.play('note$i-$curAnim', true);
-				
+
 				if(maxFrame < spr.animation.curAnim.numFrames)
 					maxFrame = spr.animation.curAnim.numFrames;
-				
+
 				spr.animation.curAnim.frameRate = FlxG.random.int(config.minFps, config.maxFps);
 				var offs:Array<Float> = selectedArray(i);
 				spr.offset.set(10 + offs[0], 10 + offs[1]);

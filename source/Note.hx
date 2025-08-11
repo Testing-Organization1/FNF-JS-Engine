@@ -1,12 +1,9 @@
 package;
 
 import backend.NoteTypesConfig;
-import flixel.util.FlxColor;
 import objects.SustainSplash;
 import shaders.RGBPalette.RGBShaderReference;
 import shaders.RGBPalette;
-
-using StringTools;
 
 typedef EventNote = {
 	strumTime:Float,

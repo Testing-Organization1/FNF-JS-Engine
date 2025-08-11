@@ -1,12 +1,8 @@
 package;
 
 import backend.PsychCamera;
-import flixel.FlxCamera;
-import flixel.FlxG;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 import lime.app.Application;
-import openfl.utils.Assets;
 
 class MusicBeatState extends FlxUIState
 {
@@ -44,8 +40,12 @@ class MusicBeatState extends FlxUIState
 		Application.current.window.title = windowNamePrefix + windowNameSuffix + windowNameSuffix2;
 		return value;
 	}
-
-	override public function new() {
+	public var variables:Map<String, Dynamic> = new Map<String, Dynamic>();
+	public static function getVariables()
+		return getState().variables;
+	
+	// this is just because FlxUIState has arguments in it's constructor
+	public function new() {
 		super();
 	}
 
@@ -55,7 +55,7 @@ class MusicBeatState extends FlxUIState
 		super.create();
 
 		if(!_psychCameraInitialized && Type.getClassName(Type.getClass(FlxG.state)) != 'PlayState') initPsychCamera();
-		
+
 		if(!skip) {
 			openSubState(new CustomFadeTransition(0.7, true));
 		}
@@ -132,7 +132,7 @@ class MusicBeatState extends FlxUIState
 			{
 				stepsToDo += Math.round(getBeatsOnSection() * 4);
 				if(stepsToDo > curStep) break;
-				
+
 				curSection++;
 			}
 		}

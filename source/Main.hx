@@ -7,7 +7,6 @@ import lime.app.Application;
 import openfl.Lib;
 import openfl.display.Sprite;
 
-using StringTools;
 #if (linux || mac)
 import lime.graphics.Image;
 #end
@@ -145,6 +144,8 @@ class Main extends Sprite {
 			FlxG.sound = soundFrontEnd;
 			funkinGame._customSoundTray = objects.CustomSoundTray.CustomSoundTray;
 		}
+		// turns out I forgot this, I'm a bit dumb for that
+		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 
 		addChild(funkinGame);
 

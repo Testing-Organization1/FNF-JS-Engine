@@ -1,9 +1,6 @@
 package;
 
-import haxe.Json;
-import openfl.utils.Assets;
-
-using StringTools;
+import flixel.graphics.FlxGraphic;
 
 // metadatas for icons
 // allows for animated icons and such
@@ -12,8 +9,7 @@ typedef IconMeta = {
 	?fps:Int,
 	// ?frameOrder:Array<String> // ["normal", "losing", "winning"]
 	// ?isAnimated:Bool,
-	?hasWinIcon:Bool,
-	?useLegacySystem:Bool
+	//?hasWinIcon:Bool
 }
 class HealthIcon extends FlxSprite
 {
@@ -22,6 +18,8 @@ class HealthIcon extends FlxSprite
 	private var isPlayer:Bool = false;
 	private var char:String = '';
 	public var iconMeta:IconMeta;
+	
+	public var animated:Bool = false;
 
 	var initialWidth:Float = 0;
 	var initialHeight:Float = 0;
@@ -49,7 +47,7 @@ class HealthIcon extends FlxSprite
 	}
 
 	public var iconOffsets:Array<Float> = [0, 0];
-	public function changeIcon(char:String) {
+	public function changeIcon(char:String, ?isAnimated:Bool = true) {
 		if(this.char != char) {
 			if (char.length < 1)
 				char = 'face';
@@ -58,89 +56,55 @@ class HealthIcon extends FlxSprite
 			var name:String = 'icons/' + char;
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-' + char; //Older versions of psych engine's support
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-face'; //Prevents crash from missing icon
-			var file:Dynamic = Paths.image(name);
+			var iconAsset:FlxGraphic = FlxG.bitmap.add(Paths.image(name));
 
-			if (file == null)
-				file == Paths.image('icons/icon-face');
+			if (iconAsset == null)
+				iconAsset = Paths.image('icons/icon-face');
 			else if (!Paths.fileExists('images/icons/icon-face.png', IMAGE)){
 				// throw "Don't delete the placeholder icon";
 				trace("Warning: could not find the placeholder icon, expect crashes!");
 			}
-			var iSize:Float = Math.round(file.width / file.height);
-			// TODO: clean up this fucking mess
-			if (iconMeta?.useLegacySystem || (file.width / file.height > 3))
-			{
-				if (file.width / file.height > 3)
-					iSize = Math.floor(file.width / 2);
-				loadGraphic(file, true, Math.floor(file.width / iSize), Math.floor(file.height));
-				initialWidth = width;
-				initialHeight = height;
+			
+			animated = (Paths.fileExists('images/$name.xml', TEXT) && isAnimated);
+
+			//cleaned up to be less confusing. also floor is used so iSize has to definitively be 3 to use winning icons
+			final iSize:Float = Math.round(iconAsset.width / iconAsset.height);
+			initialWidth = width;
+			initialHeight = height;
+			if (animated) {
+				try {
+					frames = Paths.getSparrowAtlas(name);
+					if (frames == null){
+						trace("Couldn't find any frames for the icons atlas!");
+						changeIcon('bf');
+						return;
+					}
+					final iconPrefixes = checkAvailablePrefixes(Paths.getPath('images/$name.xml', TEXT));
+					final hasWinning = iconPrefixes.get('winning');
+					final hasLosing = iconPrefixes.get('losing');
+					final fps:Float = iconMeta.fps ??= 24;
+					final loop = fps > 0;
+
+					// Always add "normal"
+					animation.addByPrefix('normal', 'normal', fps, loop, isPlayer);
+
+					// Add "losing", fallback to "normal"
+					animation.addByPrefix('losing', hasLosing ? 'losing' : 'normal', fps, loop, isPlayer);
+
+					// Add "winning", fallback to "normal"
+					animation.addByPrefix('winning', hasWinning ? 'winning' : 'normal', fps, loop, isPlayer);
+					playAnim('normal');
+				}
+				catch(e:Dynamic){
+					trace(e);
+					changeIcon(char, false);
+					return;
+				}
+			} else {
+				loadGraphic(iconAsset, true, Math.floor(iconAsset.width / iSize), Math.floor(iconAsset.height));
 				iconOffsets[0] = (width - 150) / iSize;
 				iconOffsets[1] = (height - 150) / iSize;
-
-				updateHitbox();
-
 				animation.add(char, [for(i in 0...frames.frames.length) i], 0, false, isPlayer);
-			}
-			else if (file.width == 300) {
-				loadGraphic(file, true, Math.floor(file.width / 2), Math.floor(file.height));
-				iconOffsets[0] = (width - 150) / iSize;
-				iconOffsets[1] = (height - 150) / iSize;
-				initialWidth = width;
-				initialHeight = height;
-				updateHitbox();
-				animation.add(char, [0, 1], 0, false, isPlayer);
-			} else if (file.width == 450) {
-				loadGraphic(file, true, Math.floor(file.width / 3), Math.floor(file.height));
-				iconOffsets[0] = (width - 150) / iSize;
-				iconOffsets[1] = (height - 150) / iSize;
-				initialWidth = width;
-				initialHeight = height;
-				updateHitbox();
-				animation.add(char, [0, 1, 2], 0, false, isPlayer);
-			} else if (Paths.fileExists('images/$name.xml', TEXT)) {
-				frames = Paths.getSparrowAtlas(name);
-				final iconPrefixes = checkAvailablePrefixes(Paths.getPath('images/$name.xml', TEXT));
-				final hasWinning = iconPrefixes.get('winning');
-				final hasLosing = iconPrefixes.get('losing');
-				final fps:Float = iconMeta.fps ??= 24;
-				final loop = fps > 0;
-
-				// Always add "normal"
-				animation.addByPrefix('normal', 'normal', fps, loop, isPlayer);
-
-				// Add "losing", fallback to "normal"
-				animation.addByPrefix('losing', hasLosing ? 'losing' : 'normal', fps, loop, isPlayer);
-
-				// Add "winning", fallback to "normal"
-				animation.addByPrefix('winning', hasWinning ? 'winning' : 'normal', fps, loop, isPlayer);
-				playAnim('normal');
-			} else { // This is just an attempt for other icon support, will detect is less than 300 or more than 300. If 300 or less, only 2 icons, if more, 3 icons.
-				var num:Int = Std.int(Math.round(file.width / file.height));
-				if (file.width % file.height != 0 || num >= 4) {
-						// weird icon, maybe has padding?
-						num = 3; // fallback
-				}
-				if (file.width < 300) {
-					num = 2;
-				} else if (file.width >= 300) {
-					num = 3;
-				}
-
-				loadGraphic(file, true, Math.floor(file.width / num), Math.floor(file.height));
-				iconOffsets[0] = (width - 150) / iSize;
-				iconOffsets[1] = (height - 150) / iSize;
-				initialWidth = width;
-				initialHeight = height;
-				updateHitbox();
-
-				function getWinIcon():Array<Int>
-				{
-					return (iconMeta?.hasWinIcon || num == 3) ? [0, 1, 2] : [0, 1];
-				}
-
-				final winShit:Array<Int> = (num == 2) ? [0, 1] : getWinIcon();
-				animation.add(char, winShit, 0, false, isPlayer);
 			}
 
 			// animation.add(char, [for(i in 0...frames.frames.length) i], 0, false, isPlayer);
@@ -202,8 +166,7 @@ class HealthIcon extends FlxSprite
 		var json:IconMeta = cast Json.parse(rawJson);
 		if (json.noAntialiasing == null) json.noAntialiasing = false;
 		if (json.fps == null) json.fps = 24;
-		if (json.hasWinIcon == null) json.hasWinIcon = false;
-		if (json.useLegacySystem == null) json.useLegacySystem = false;
+		//if (json.hasWinIcon == null) json.hasWinIcon = false;
 		// if (json.frameOrder == null) json.frameOrder = ['normal', 'losing', 'winning'];
 		return json;
 	}
@@ -212,9 +175,9 @@ class HealthIcon extends FlxSprite
 	{
 		if (ClientPrefs.iconBounceType != 'Golden Apple' && ClientPrefs.iconBounceType != 'Dave and Bambi' || !Std.isOfType(FlxG.state, PlayState))
 		{
-		super.updateHitbox();
-		offset.x = iconOffsets[0];
-		offset.y = iconOffsets[1];
+			super.updateHitbox();
+			offset.x = iconOffsets[0];
+			offset.y = iconOffsets[1];
 		} else {
 			super.updateHitbox();
 			if (initialWidth != (150 * animation.numFrames) || initialHeight != 150) //Fixes weird icon offsets when they're HUMONGUS (sussy)

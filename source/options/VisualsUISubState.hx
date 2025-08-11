@@ -1,30 +1,10 @@
 package options;
 
-import flash.text.TextField;
+import Controls;
 import Note;
 import StrumNote;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import lime.utils.Assets;
-import flixel.FlxSubState;
-import flash.text.TextField;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.util.FlxSave;
-import haxe.Json;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxTimer;
-import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
-import Controls;
-
-using StringTools;
+import flixel.input.keyboard.FlxKey;
 
 class VisualsUISubState extends BaseOptionsMenu
 {
@@ -103,7 +83,7 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool',
 			true);
 		addOption(option);
-		
+
 		var option:Option = new Option('Show Combo',
 			'If checked, the game will show your current combo.',
 			'showComboInfo',
@@ -190,7 +170,7 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool',
 			true);
 		addOption(option);
-		
+
 		var option:Option = new Option('Botplay Watermark',
 			'If checked, some texts will have a watermark if Botplay is enabled.',
 			'botWatermark',
@@ -224,7 +204,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Enable Note Colors',
-			'If unchecked, notes won\'t be able to use your currently set colors. \nI think this decreases loading time.',
+			'If unchecked, notes won\'t be able to use your currently set colors.',
 			'enableColorShader',
 			'bool',
 			true);
@@ -270,7 +250,7 @@ class VisualsUISubState extends BaseOptionsMenu
 				ratingQuoteList);
 			addOption(option);
 		}
-				
+
 		var option:Option = new Option('Time Bar:',
 			"What should the Time Bar display?",
 			'timeBarType',
@@ -455,25 +435,6 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.decimals = 1;
 		addOption(option);
 
-		var option:Option = new Option('Lane Underlay',
-			"If checked, a black line will appear behind the notes, making them easier to read.",
-			'laneUnderlay',
-			'bool',
-			false);
-		addOption(option);
-
-		var option:Option = new Option('Lane Underlay Transparency',
-			'How transparent do you want the lane underlay to be? (0% = transparent, 100% = fully opaque)',
-			'laneUnderlayAlpha',
-			'percent',
-			1);
-		option.scrollSpeed = 1.6;
-		option.minValue = 0.0;
-		option.maxValue = 1;
-		option.changeValue = 0.1;
-		option.decimals = 1;
-		addOption(option);
-		
 		#if !mobile
 		var option:Option = new Option('FPS Counter',
 			'If unchecked, hides FPS Counter.',
@@ -497,7 +458,7 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool',
 			true);
 		addOption(option);
-		
+
 		var option:Option = new Option('Pause Screen Song:',
 			"What song do you prefer for the Pause Screen?",
 			'pauseMusic',
@@ -506,8 +467,8 @@ class VisualsUISubState extends BaseOptionsMenu
 			['None', 'Breakfast', 'Tea Time']);
 		addOption(option);
 		option.onChange = onChangePauseMusic;
-		
-		#if APRIL_FOOLS 		
+
+		#if APRIL_FOOLS
 			if (!ClientPrefs.disableAprilFools || !(date.getMonth() == 3 && date.getDate() == 1)) {
 				var option:Option = new Option('Menu Song:',
 					"What song do you prefer when you're in menus?",
@@ -516,7 +477,7 @@ class VisualsUISubState extends BaseOptionsMenu
 					'Default',
 					['Default', 'Anniversary', 'Mashup', 'Base Game', 'DDTO+', 'Dave & Bambi', 'Dave & Bambi (Old)', 'VS Impostor', 'VS Nonsense V2']);
 				addOption(option);
-				option.onChange = onChangeMenuMusic;	
+				option.onChange = onChangeMenuMusic;
 			}
 		#else
 			var option:Option = new Option('Menu Song:',
@@ -526,7 +487,7 @@ class VisualsUISubState extends BaseOptionsMenu
 				'Default',
 				['Default', 'Anniversary', 'Mashup', 'Base Game', 'DDTO+', 'Dave & Bambi', 'Dave & Bambi (Old)', 'VS Impostor', 'VS Nonsense V2']);
 			addOption(option);
-			option.onChange = onChangeMenuMusic;		
+			option.onChange = onChangeMenuMusic;
 		#end
 
 		#if CHECK_FOR_UPDATES
@@ -598,7 +559,7 @@ class VisualsUISubState extends BaseOptionsMenu
 	override function changeSelection(change:Int = 0)
 	{
 		super.changeSelection(change);
-		
+
 		if(noteOptionID < 0) return;
 
 		for (i in 0...Note.colArray.length)
@@ -620,7 +581,7 @@ class VisualsUISubState extends BaseOptionsMenu
 			note.centerOrigin();
 		});
 	}
-	
+
 	function changeNoteSkin(note:StrumNote)
 	{
 		var skin:String = Note.defaultNoteSkin;

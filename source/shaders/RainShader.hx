@@ -4,7 +4,6 @@ import flixel.system.FlxAssets.FlxShader;
 import openfl.display.BitmapData;
 import openfl.display.ShaderParameter;
 import openfl.display.ShaderParameterType;
-import openfl.utils.Assets;
 
 typedef Light =
 {
@@ -32,13 +31,13 @@ class RainShader extends FlxShader
 		  //   (0, 0) is the top left of the window
 		  //   (1, 1) is the bottom right of the window
 		  varying vec2 screenCoord;
-  
+
 		  // equals (FlxG.width, FlxG.height)
 		  uniform vec2 uScreenResolution;
-  
+
 		  // equals (camera.viewLeft, camera.viewTop, camera.viewRight, camera.viewBottom)
 		  uniform vec4 uCameraBounds;
-  
+
 		  // screen coord -> world coord conversion
 		  // returns world coord in px
 		  vec2 screenToWorld(vec2 screenCoord) {
@@ -50,7 +49,7 @@ class RainShader extends FlxShader
 			  vec2 offset = vec2(left, top);
 			  return screenCoord * scale + offset;
 		  }
-  
+
 		  // world coord -> screen coord conversion
 		  // returns normalized screen coord
 		  vec2 worldToScreen(vec2 worldCoord) {
@@ -62,22 +61,22 @@ class RainShader extends FlxShader
 			  vec2 offset = vec2(left, top);
 			  return (worldCoord - offset) / scale;
 		  }
-  
+
 		  // internally used to get the maximum `openfl_TextureCoordv`
 		  vec2 bitmapCoordScale() {
 			  return openfl_TextureCoordv / screenCoord;
 		  }
-  
+
 		  // internally used to compute bitmap coord
 		  vec2 screenToBitmap(vec2 screenCoord) {
 			  return screenCoord * bitmapCoordScale();
 		  }
-  
+
 		  // samples the frame buffer using a screen coord
 		  vec4 sampleBitmapScreen(vec2 screenCoord) {
 			  return texture2D(bitmap, screenToBitmap(screenCoord));
 		  }
-  
+
 		  // samples the frame buffer using a world coord
 		  vec4 sampleBitmapWorld(vec2 worldCoord) {
 			  return sampleBitmapScreen(worldToScreen(worldCoord));
@@ -480,7 +479,7 @@ class RainShader extends FlxShader
 		uScreenResolution.value = [screenWidth, screenHeight];
 		uCameraBounds.value = [camera.viewLeft, camera.viewTop, camera.viewRight, camera.viewBottom];
 	}
-  
+
 	/*override function __createGLProgram(vertexSource:String, fragmentSource:String):GLProgram
 	{
 	  try

@@ -2,7 +2,6 @@ package objects;
 
 import shaders.RGBPalette;
 
-using StringTools;
 // This code was from Psych Online, so credit to NotMagniill and Snirozu for the code
 
 class SustainSplash extends FlxSprite
